@@ -1,8 +1,7 @@
-'use client';
-
 import React, { useState, useRef, useEffect } from 'react';
 import { Download, Share2, Sparkles, RefreshCw, Copy, Check, Palette, ChevronLeft, ChevronRight, X } from 'lucide-react';
 import { exportHazelsCardPNG } from './HazelsCardCanvasExporter';
+import { HazelsLogo, HazelsIcon } from './HazelsLogo';
 
 export interface CardArchetype {
   id: string;
@@ -15,6 +14,7 @@ export interface CardArchetype {
   iconBg: string;
 }
 
+// 10 100% Original Hazels Anime Archetypes
 export const HAZELS_ARCHETYPES: Record<string, CardArchetype> = {
   rei: {
     id: 'rei',
@@ -41,10 +41,10 @@ export const HAZELS_ARCHETYPES: Record<string, CardArchetype> = {
     title: 'Kinetic Shield Sentinel',
     lore: 'Defends the community with unwavering loyalty. Constructs energetic barriers against volatility.',
     rarity: 'EPIC',
-    glowColor: '#00E5FF',
+    glowColor: '#FF2A5F',
     image: '/cards/0003.webp',
     badgeEmoji: '🛡️',
-    iconBg: '#00E5FF',
+    iconBg: '#FF2A5F',
   },
   yuki: {
     id: 'yuki',
@@ -121,14 +121,12 @@ export const HAZELS_ARCHETYPES: Record<string, CardArchetype> = {
 const ARCHETYPES_LIST = Object.values(HAZELS_ARCHETYPES);
 
 export const HazelsCards: React.FC = () => {
+  // Free input field by default: empty string
   const [inputVal, setInputVal] = useState('');
   const [loading, setLoading] = useState(false);
-  const [userData, setUserData] = useState<{
-    user: { handle: string; name: string; profile_image_url: string };
-    totalImpressions: number;
-    totalPosts: number;
-  } | null>(null);
+  const [userData, setUserData] = useState<any>(null);
   const [selectedArchetypeId, setSelectedArchetypeId] = useState<string>('rei');
+  // Starts with card back showing (unrevealed pack)
   const [isFlipped, setIsFlipped] = useState(false);
   const [hasRevealed, setHasRevealed] = useState(false);
   const [openingStage, setOpeningStage] = useState<'idle' | 'charging' | 'spinning' | 'revealed'>('idle');
@@ -145,6 +143,7 @@ export const HazelsCards: React.FC = () => {
   const cardRef = useRef<HTMLDivElement>(null);
   const [tilt, setTilt] = useState({ x: 0, y: 0, glareX: 50, glareY: 50 });
 
+  // Smooth card flip handler
   const toggleFlip = (e?: React.MouseEvent) => {
     if (e) e.stopPropagation();
     if (openingStage === 'charging' || openingStage === 'spinning') return;
@@ -156,6 +155,7 @@ export const HazelsCards: React.FC = () => {
     }, 700);
   };
 
+  // Keyboard navigation for 3D carousel
   useEffect(() => {
     if (!isCustomizerOpen) return;
     const handleKeyDown = (e: KeyboardEvent) => {
@@ -171,24 +171,29 @@ export const HazelsCards: React.FC = () => {
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, [isCustomizerOpen]);
 
+  // Opening / Reveal Animation Trigger
   const triggerOpeningSequence = (targetArchetypeId?: string) => {
     if (targetArchetypeId) setSelectedArchetypeId(targetArchetypeId);
     setIsFlipped(false);
     setOpeningStage('charging');
 
+    // Stage 1: Card charges up and vibrates with glowing aura (550ms)
     setTimeout(() => {
       setOpeningStage('spinning');
 
+      // Stage 2: In the middle of 3D rotation, switch face to front and trigger flash
       setTimeout(() => {
         setIsFlipped(true);
         setShowFlash(true);
       }, 450);
 
+      // Stage 3: Snap into place face-up with bounce
       setTimeout(() => {
         setOpeningStage('revealed');
         setHasRevealed(true);
         setTimeout(() => setShowFlash(false), 700);
 
+        // Reset stage to idle after reveal so it completely frees transform and allows smooth 3D flipping!
         setTimeout(() => {
           setOpeningStage('idle');
         }, 600);
@@ -204,7 +209,7 @@ export const HazelsCards: React.FC = () => {
     try {
       const res = await fetch(`/api/impressions?handle=${encodeURIComponent(clean)}`);
       const json = await res.json();
-      let assignedArchetype = 'rei';
+      let assignedArchetype = 'navigator';
 
       if (json && json.ok) {
         setUserData({
@@ -215,79 +220,100 @@ export const HazelsCards: React.FC = () => {
           },
           totalImpressions: json.total_impressions || 0,
           totalPosts: json.post_count || 0,
+          tweets: json.posts || [],
         });
 
+        // Smart assignment according to engagement metrics
         const imps = json.total_impressions || 0;
-        if (imps >= 100000) assignedArchetype = 'rei';
-        else if (imps >= 50000) assignedArchetype = 'kaede';
-        else if (imps >= 25000) assignedArchetype = 'hina';
-        else if (imps >= 10000) assignedArchetype = 'yuki';
-        else if (imps >= 5000) assignedArchetype = 'aoi';
-        else if (imps >= 2000) assignedArchetype = 'sora';
-        else assignedArchetype = 'mai';
+        if (clean.toLowerCase() === 'Contender') {
+          assignedArchetype = 'pioneer';
+        } else if (imps > 100000) {
+          assignedArchetype = 'usdc_titan';
+        } else if (imps > 50000) {
+          assignedArchetype = 'sovereign';
+        } else if (imps > 25000) {
+          assignedArchetype = 'architect';
+        } else if (imps > 10000) {
+          assignedArchetype = 'finalizer';
+        } else if (imps > 5000) {
+          assignedArchetype = 'vanguard';
+        } else if (imps > 2000) {
+          assignedArchetype = 'arbitrageur';
+        } else if (imps > 500) {
+          assignedArchetype = 'devourer';
+        } else {
+          const pool = ['navigator', 'sentinel', 'vanguard', 'pioneer'];
+          assignedArchetype = pool[Math.floor(Math.random() * pool.length)];
+        }
       } else {
         setUserData({
-          user: { handle: clean, name: clean, profile_image_url: `https://unavatar.io/x/${clean}` },
+          user: { handle: clean, name: clean, profile_image_url: '' },
           totalImpressions: 0,
           totalPosts: 0,
+          tweets: [],
         });
-        assignedArchetype = 'rei';
+        const allIds = Object.keys(HAZELS_ARCHETYPES);
+        assignedArchetype = allIds[Math.floor(Math.random() * allIds.length)];
       }
 
-      setSelectedArchetypeId(assignedArchetype);
-      setCarouselIndex(ARCHETYPES_LIST.findIndex((a) => a.id === assignedArchetype));
       triggerOpeningSequence(assignedArchetype);
-    } catch {
-      setUserData({
-        user: { handle: clean, name: clean, profile_image_url: `https://unavatar.io/x/${clean}` },
-        totalImpressions: 0,
-        totalPosts: 0,
-      });
-      triggerOpeningSequence('rei');
+    } catch (e) {
+      console.error(e);
+      const allIds = Object.keys(HAZELS_ARCHETYPES);
+      triggerOpeningSequence(allIds[Math.floor(Math.random() * allIds.length)]);
     } finally {
       setLoading(false);
     }
   };
 
-  const handleCardClick = () => {
-    if (!hasRevealed) {
-      triggerOpeningSequence();
-    } else {
-      toggleFlip();
-    }
-  };
+  const archetype = HAZELS_ARCHETYPES[selectedArchetypeId] || HAZELS_ARCHETYPES.pioneer;
 
   const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
-    if (!cardRef.current || openingStage === 'charging' || openingStage === 'spinning') return;
+    if (openingStage === 'charging' || openingStage === 'spinning') return;
+    if (!cardRef.current) return;
     const rect = cardRef.current.getBoundingClientRect();
     const x = e.clientX - rect.left;
     const y = e.clientY - rect.top;
+    const centerX = rect.width / 2;
+    const centerY = rect.height / 2;
 
-    const rotX = ((y - rect.height / 2) / (rect.height / 2)) * -14;
-    const rotY = ((x - rect.width / 2) / (rect.width / 2)) * 14;
+    const rotateX = ((y - centerY) / centerY) * -12;
+    const rotateY = ((x - centerX) / centerX) * 12;
 
-    const glareX = (x / rect.width) * 100;
-    const glareY = (y / rect.height) * 100;
-
-    setTilt({ x: rotX, y: rotY, glareX, glareY });
+    setTilt({
+      x: rotateX,
+      y: rotateY,
+      glareX: (x / rect.width) * 100,
+      glareY: (y / rect.height) * 100,
+    });
   };
 
   const handleMouseLeave = () => {
     setTilt({ x: 0, y: 0, glareX: 50, glareY: 50 });
   };
 
-  const archetype = HAZELS_ARCHETYPES[selectedArchetypeId] || HAZELS_ARCHETYPES.rei;
+  const handleCardClick = () => {
+    if (openingStage === 'charging' || openingStage === 'spinning') return;
+    if (!hasRevealed) {
+      if (!userData) {
+        const allIds = Object.keys(HAZELS_ARCHETYPES);
+        const randId = allIds[Math.floor(Math.random() * allIds.length)];
+        triggerOpeningSequence(randId);
+      } else {
+        triggerOpeningSequence();
+      }
+    } else {
+      toggleFlip();
+    }
+  };
 
   const handleDownload = async () => {
+    const handleToUse = userData?.user?.handle || (inputVal.trim() ? inputVal.trim() : 'creator');
     setDownloading(true);
     try {
-      const displayHandle = userData?.user?.handle || inputVal.trim() || 'Contender';
-      const displayName = userData?.user?.name || displayHandle;
-      const avatarUrl = userData?.user?.profile_image_url || `https://unavatar.io/x/${displayHandle}`;
-
       const blob = await exportHazelsCardPNG({
         handle: displayHandle,
-        avatarUrl,
+        avatarUrl: userData?.user?.profile_image_url || `https://unavatar.io/x/${displayHandle}`,
         archetypeId: archetype.id,
         archetypeTitle: archetype.title,
         archetypeLore: archetype.lore,
@@ -297,26 +323,25 @@ export const HazelsCards: React.FC = () => {
         postCount: userData?.totalPosts || 0,
         image: archetype.image,
       });
-
       if (blob) {
         const url = URL.createObjectURL(blob);
         const a = document.createElement('a');
         a.href = url;
-        a.download = `${displayHandle}-hazels-card.png`;
+        a.download = `${handleToUse}-rialo-card.png`;
         a.click();
         URL.revokeObjectURL(url);
       }
     } catch (err) {
-      console.error(err);
+      console.error('Download error:', err);
     } finally {
       setDownloading(false);
     }
   };
 
-  const handleShareToX = () => {
-    const displayHandle = userData?.user?.handle || inputVal.trim() || 'Contender';
+  const handleShareX = () => {
+    const handleToUse = userData?.user?.handle || (inputVal.trim() ? inputVal.trim() : 'creator');
     const text = encodeURIComponent(
-      `I forged my official Hazels Collectible Card: ${archetype.badgeEmoji} ${archetype.title} (${archetype.rarity})! ⚔️\n\nFall seven times, rise the eighth. 七転び八起き\nForge your Hazels Card on Hazels Trace:`
+      `I forged my official @0xhazels Collectible Card: ${archetype.badgeEmoji} ${archetype.title} (${archetype.rarity})!\n\n⚡ Total Rialo Impressions: ${(userData?.totalImpressions || 0).toLocaleString()}\n🌊 Wave 1 Genesis\n\nForge your Rialo Card on @HazelsTrace:`
     );
     const url = encodeURIComponent(window.location.href);
     window.open(`https://twitter.com/intent/tweet?text=${text}&url=${url}`, '_blank');
@@ -328,7 +353,7 @@ export const HazelsCards: React.FC = () => {
     setTimeout(() => setCopiedLink(false), 2000);
   };
 
-  const displayHandle = userData?.user?.handle || inputVal.trim() || 'Contender';
+  const displayHandle = userData?.user?.handle || (inputVal.trim() ? inputVal.trim() : 'Contender');
 
   const getAnimationClass = () => {
     if (openingStage === 'charging') return 'card-is-charging';
@@ -347,7 +372,7 @@ export const HazelsCards: React.FC = () => {
 
   return (
     <div className="monad-style-stage animate-fade-in">
-      {/* Top Search Bar */}
+      {/* Top Search Bar (Clean, no chips above) */}
       <div className="monad-search-container">
         <form
           onSubmit={(e) => {
@@ -371,7 +396,6 @@ export const HazelsCards: React.FC = () => {
             type="submit"
             disabled={loading || !inputVal.trim()}
             className="monad-btn-generate"
-            style={{ background: 'linear-gradient(135deg, #FF2A5F, #8B5CF6)' }}
           >
             {loading ? 'Forging...' : '⚡ Forge & Reveal Card'}
           </button>
@@ -382,11 +406,14 @@ export const HazelsCards: React.FC = () => {
       <div className="monad-stage-center">
         {/* Card and Action Side Buttons Wrapper */}
         <div className="monad-card-and-actions">
-          {/* Ambient Spotlight Beams */}
+          {/* Ambient Spotlight Beams (Rialo Mystery Stage) */}
           <div className={`card-spotlight-backdrop ${openingStage === 'charging' ? 'charging' : ''}`}>
-            <div className="card-beam" style={{ background: 'linear-gradient(180deg, rgba(255, 42, 95, 0.4), transparent)' }} />
-            <div className="card-beam" style={{ background: 'linear-gradient(180deg, rgba(139, 92, 246, 0.4), transparent)' }} />
-            <div className="card-beam" style={{ background: 'linear-gradient(180deg, rgba(255, 42, 95, 0.4), transparent)' }} />
+            <div className="card-beam" />
+            <div className="card-beam" />
+            <div className="card-beam" />
+            <div className="card-beam" />
+            <div className="card-beam" />
+            <div className="card-beam" />
           </div>
 
           {/* Flash burst overlay on reveal */}
@@ -408,10 +435,10 @@ export const HazelsCards: React.FC = () => {
                   : `rotateX(${tilt.x}deg) rotateY(${isFlipped ? tilt.y : 180 - tilt.y}deg)`,
                 boxShadow: isFlipped
                   ? `0 0 55px ${archetype.glowColor}66, 0 0 110px ${archetype.glowColor}33`
-                  : '0 0 50px rgba(255, 42, 95, 0.5), 0 0 100px rgba(139, 92, 246, 0.3)',
+                  : '0 0 50px rgba(255, 42, 95, 0.5), 0 0 100px rgba(99, 102, 241, 0.3)',
               }}
             >
-              {/* CARD FRONT */}
+              {/* CARD FRONT (Original Arc Aesthetics) */}
               <div
                 className="monad-card-face monad-card-front"
                 style={{
@@ -426,7 +453,7 @@ export const HazelsCards: React.FC = () => {
                   }}
                 />
 
-                {/* Top Nameplate Box with User's X Avatar */}
+                {/* Top Nameplate Box with User's X Avatar / DP */}
                 <div className="monad-card-nameplate">
                   <div className="monad-nameplate-user">
                     {userData?.user?.profile_image_url ? (
@@ -442,7 +469,7 @@ export const HazelsCards: React.FC = () => {
                       <div
                         className="monad-user-dp-placeholder"
                         style={{
-                          background: `linear-gradient(135deg, ${archetype.glowColor}, #8B5CF6)`,
+                          background: `linear-gradient(135deg, ${archetype.glowColor}, #3B82F6)`,
                         }}
                       >
                         {displayHandle.replace('@', '').charAt(0).toUpperCase()}
@@ -456,7 +483,7 @@ export const HazelsCards: React.FC = () => {
                     className="monad-nameplate-star"
                     style={{ color: archetype.glowColor }}
                   >
-                    ★
+                    ✦
                   </div>
                 </div>
 
@@ -469,7 +496,7 @@ export const HazelsCards: React.FC = () => {
                   />
                 </div>
 
-                {/* Trait Box */}
+                {/* Trait Box (Original Arc Archetype) */}
                 <div className="monad-trait-card">
                   <div
                     className="monad-trait-icon-box"
@@ -478,7 +505,7 @@ export const HazelsCards: React.FC = () => {
                     <span className="monad-trait-icon">{archetype.badgeEmoji}</span>
                   </div>
                   <div className="monad-trait-content">
-                    <div className="monad-trait-title" style={{ color: archetype.glowColor }}>
+                    <div className="monad-trait-title">
                       {archetype.title}
                     </div>
                     <p className="monad-trait-lore">
@@ -489,53 +516,35 @@ export const HazelsCards: React.FC = () => {
 
                 {/* Bottom Footer: Brand & Wave Stamp */}
                 <div className="monad-card-footer">
-                  <span className="monad-footer-brand" style={{ color: '#FF7597' }}>Hazels Cards</span>
-                  <div className="monad-wave-badge" style={{ background: 'rgba(255, 42, 95, 0.2)', border: '1px solid rgba(255, 42, 95, 0.4)' }}>
-                    <span style={{ color: '#FF7597' }}>GENESIS 1</span>
+                  <span className="monad-footer-brand">Hazels Cards</span>
+                  <div className="monad-wave-badge">
+                    <span>WAVE 1</span>
                   </div>
                 </div>
               </div>
 
-              {/* CARD BACK */}
+              {/* CARD BACK (Unrevealed Official Holographic Back) */}
               <div
                 className="monad-card-face monad-card-back"
                 style={{
                   border: '2px solid rgba(255, 42, 95, 0.7)',
                   boxShadow: '0 0 50px rgba(255, 42, 95, 0.5)',
-                  background: 'linear-gradient(135deg, #090B14 0%, #1A0710 100%)',
                 }}
               >
                 <div className="monad-back-header">
-                  <span style={{ color: '#FF7597' }}>HAZELS CARDS</span>
-                  <span style={{ color: '#8B5CF6' }}>SERIES 1</span>
+                  <span>HAZELS CARDS</span>
+                  <span>SERIES 1</span>
                 </div>
 
                 <div className="monad-back-center-logo">
-                  <div
-                    style={{
-                      width: '64px',
-                      height: '64px',
-                      borderRadius: '50%',
-                      background: 'rgba(255, 42, 95, 0.1)',
-                      border: '2px solid #FF2A5F',
-                      display: 'flex',
-                      alignItems: 'center',
-                      justifyContent: 'center',
-                      margin: '0 auto 12px auto',
-                      boxShadow: '0 0 24px rgba(255, 42, 95, 0.4)',
-                    }}
-                  >
-                    <img
-                      src="/brand/mark.png"
-                      alt="Hazels"
-                      style={{ width: '60%', height: '60%', objectFit: 'contain' }}
-                    />
+                  <div className="monad-back-emblem">
+                    <HazelsIcon size={52} />
                   </div>
-                  <div className="monad-back-title" style={{ color: '#FFFFFF' }}>studio.hazels.io</div>
-                  <div className="monad-back-subtitle" style={{ color: '#FF7597' }}>七転び八起き // EIGHTH RISE</div>
+                  <div className="monad-back-title">studio.hazels.io</div>
+                  <div className="monad-back-subtitle">GENESIS WAVE 1</div>
                 </div>
 
-                <div className="monad-back-cta" style={{ color: '#FF2A5F' }}>
+                <div className="monad-back-cta">
                   <Sparkles style={{ width: '16px', height: '16px', color: '#FF2A5F' }} />
                   <span>{openingStage === 'charging' ? 'CHARGING ENERGY...' : 'CLICK TO REVEAL CARD'}</span>
                 </div>
@@ -543,8 +552,9 @@ export const HazelsCards: React.FC = () => {
             </div>
           </div>
 
-          {/* Floating Action Buttons Beside Card */}
+          {/* Floating Action Buttons Beside Card (Utility controls only: Flip, Download, Copy) */}
           <div className="monad-floating-actions">
+            {/* Flip Card (Front / Back toggle) */}
             <button
               type="button"
               onClick={toggleFlip}
@@ -561,6 +571,7 @@ export const HazelsCards: React.FC = () => {
               />
             </button>
 
+            {/* Download Card PNG */}
             <button
               type="button"
               onClick={handleDownload}
@@ -571,120 +582,226 @@ export const HazelsCards: React.FC = () => {
               <Download style={{ width: '18px', height: '18px' }} />
             </button>
 
-            <button
-              type="button"
-              onClick={handleShareToX}
-              title="Share to X"
-              className="monad-action-circle"
-            >
-              <Share2 style={{ width: '18px', height: '18px' }} />
-            </button>
-
+            {/* Copy Card Link */}
             <button
               type="button"
               onClick={handleCopyLink}
-              title="Copy Link"
+              title="Copy Card Link"
               className="monad-action-circle"
             >
-              {copiedLink ? (
-                <Check style={{ width: '18px', height: '18px', color: '#22c55e' }} />
-              ) : (
-                <Copy style={{ width: '18px', height: '18px' }} />
-              )}
+              {copiedLink ? <Check style={{ width: '18px', height: '18px', color: '#10B981' }} /> : <Copy style={{ width: '18px', height: '18px' }} />}
             </button>
+          </div>
+        </div>
 
-            <button
-              type="button"
-              onClick={() => setIsCustomizerOpen(true)}
-              title="Browse Characters"
-              className="monad-action-circle"
-              style={{
-                borderColor: 'rgba(255, 42, 95, 0.4)',
-                background: 'rgba(255, 42, 95, 0.15)',
-              }}
-            >
-              <Palette style={{ width: '18px', height: '18px', color: '#FF2A5F' }} />
-            </button>
+        {/* Big Hazels Cards Title & Footer Banner */}
+        <div className="monad-banner-footer">
+          {!hasRevealed && (
+            <div className="unrevealed-badge">
+              <Sparkles style={{ width: '14px', height: '14px' }} />
+              <span>GENESIS HAZELS PACK • UNREVEALED</span>
+            </div>
+          )}
+
+          <h1 className="monad-huge-title">HAZELS CARDS</h1>
+          <div className="monad-wave-divider">
+            <span className="divider-line" />
+            <span className="divider-text">WAVE 1 — GENESIS</span>
+            <span className="divider-line" />
+          </div>
+          <p className="monad-quote-text">
+            &ldquo;Forged on sub-second finality for the Hazels Community&rdquo;
+          </p>
+          <div className="monad-signed-in">
+            Forged for <span className="signed-handle">@{displayHandle || 'Contender'}</span>
+          </div>
+
+          <div style={{ display: 'flex', gap: '12px', flexWrap: 'wrap', alignItems: 'center' }}>
+            {!hasRevealed ? (
+              <button
+                type="button"
+                onClick={() => triggerOpeningSequence()}
+                className="monad-claim-button"
+                style={{
+                  boxShadow: '0 0 35px rgba(255, 42, 95, 0.7)',
+                  background: 'linear-gradient(135deg, #FF2A5F, #2563EB)',
+                  color: '#040814',
+                  fontWeight: 900,
+                }}
+              >
+                ⚡ Open & Reveal Card ⚡
+              </button>
+            ) : (
+              <>
+                <button
+                  type="button"
+                  onClick={handleShareX}
+                  className="monad-claim-button"
+                  style={{
+                    boxShadow: `0 0 35px ${archetype.glowColor}88`,
+                    background: `linear-gradient(135deg, ${archetype.glowColor}, #2563EB)`,
+                  }}
+                >
+                  Claim & Share to X
+                </button>
+
+                <button
+                  type="button"
+                  onClick={() => {
+                    const idx = ARCHETYPES_LIST.findIndex((a) => a.id === selectedArchetypeId);
+                    setCarouselIndex(idx >= 0 ? idx : 0);
+                    setIsCustomizerOpen(true);
+                  }}
+                  className="choose-yours-btn"
+                >
+                  <Palette style={{ width: '16px', height: '16px' }} />
+                  <span>Choose Yours</span>
+                </button>
+
+                <button
+                  type="button"
+                  onClick={() => triggerOpeningSequence()}
+                  className="replay-reveal-btn"
+                >
+                  <Sparkles style={{ width: '15px', height: '15px', color: '#FF2A5F' }} />
+                  <span>Replay Animation</span>
+                </button>
+              </>
+            )}
           </div>
         </div>
       </div>
 
-      {/* 3D Carousel Customizer Modal */}
+      {/* 3D Card Carousel Customizer Modal (Facebook Reel 3D Carousel Inspiration) */}
       {isCustomizerOpen && (
-        <div className="carousel-modal-overlay" onClick={() => setIsCustomizerOpen(false)}>
-          <div className="carousel-modal-content" onClick={(e) => e.stopPropagation()}>
-            <div className="carousel-modal-header">
-              <div className="carousel-header-title">
-                <h3>Choose Character Archetype</h3>
-                <span className="carousel-counter">
-                  {carouselIndex + 1} / {ARCHETYPES_LIST.length}
-                </span>
+        <div
+          className="carousel-modal-overlay"
+          onClick={(e) => {
+            if (e.target === e.currentTarget) setIsCustomizerOpen(false);
+          }}
+        >
+          <div className="carousel-modal-container">
+            <button
+              type="button"
+              onClick={() => setIsCustomizerOpen(false)}
+              className="carousel-close-btn"
+              title="Close Customizer"
+            >
+              <X style={{ width: '22px', height: '22px' }} />
+            </button>
+
+            <div className="carousel-header">
+              <h2 className="carousel-title">CHOOSE YOURS</h2>
+              <div className="carousel-subtitle">
+                3D ARCHETYPE CAROUSEL // 10 GENESIS HAZELS CHARACTERS
               </div>
-              <button
-                type="button"
-                className="carousel-close-btn"
-                onClick={() => setIsCustomizerOpen(false)}
-              >
-                <X style={{ width: '20px', height: '20px' }} />
-              </button>
             </div>
 
-            <div className="carousel-viewport">
+            {/* 3D Carousel Stage */}
+            <div className="carousel-3d-stage">
               <button
                 type="button"
-                className="carousel-nav-btn prev"
                 onClick={() =>
                   setCarouselIndex((prev) => (prev - 1 + ARCHETYPES_LIST.length) % ARCHETYPES_LIST.length)
                 }
+                className="carousel-nav-btn prev"
+                title="Previous Archetype"
               >
-                <ChevronLeft style={{ width: '24px', height: '24px' }} />
+                <ChevronLeft style={{ width: '28px', height: '28px' }} />
               </button>
 
-              <div className="carousel-3d-stage">
+              <div className="carousel-track">
                 {ARCHETYPES_LIST.map((arch, idx) => {
-                  const offset = (idx - carouselIndex + ARCHETYPES_LIST.length) % ARCHETYPES_LIST.length;
-                  let normalizedOffset = offset;
-                  if (normalizedOffset > ARCHETYPES_LIST.length / 2) {
-                    normalizedOffset -= ARCHETYPES_LIST.length;
-                  }
-
-                  const isCenter = normalizedOffset === 0;
-                  const isVisible = Math.abs(normalizedOffset) <= 2;
+                  const offset = idx - carouselIndex;
+                  const absOffset = Math.abs(offset);
+                  const isVisible = absOffset <= 2;
 
                   if (!isVisible) return null;
 
-                  const translateX = normalizedOffset * 180;
-                  const translateZ = -Math.abs(normalizedOffset) * 120;
-                  const rotateY = -normalizedOffset * 25;
-                  const opacity = 1 - Math.abs(normalizedOffset) * 0.35;
+                  const translateX = offset * 240;
+                  const translateZ = absOffset === 0 ? 90 : -130 * absOffset;
+                  const rotateY = offset * -28;
+                  const scale = absOffset === 0 ? 1.05 : 0.82;
+                  const opacity = absOffset === 0 ? 1 : Math.max(0.35, 1 - absOffset * 0.35);
 
                   return (
                     <div
                       key={arch.id}
-                      className={`carousel-slide ${isCenter ? 'active' : ''}`}
+                      onClick={() => setCarouselIndex(idx)}
+                      className={`carousel-card-item ${absOffset === 0 ? 'active' : ''}`}
                       style={{
-                        transform: `translateX(${translateX}px) translateZ(${translateZ}px) rotateY(${rotateY}deg)`,
+                        transform: `translateX(${translateX}px) translateZ(${translateZ}px) rotateY(${rotateY}deg) scale(${scale})`,
                         opacity,
-                        zIndex: 10 - Math.abs(normalizedOffset),
-                        borderColor: arch.glowColor,
-                      }}
-                      onClick={() => {
-                        if (isCenter) {
-                          handleEquipFromCarousel(arch);
-                        } else {
-                          setCarouselIndex(idx);
-                        }
+                        zIndex: 20 - absOffset,
+                        borderColor: absOffset === 0 ? arch.glowColor : 'rgba(255,255,255,0.15)',
+                        boxShadow: absOffset === 0
+                          ? `0 0 50px ${arch.glowColor}88, 0 0 100px ${arch.glowColor}44`
+                          : '0 10px 30px rgba(0,0,0,0.5)',
                       }}
                     >
-                      <div className="slide-rarity-chip" style={{ background: arch.glowColor, color: '#010101' }}>
-                        {arch.rarity}
-                      </div>
-                      <img src={arch.image} alt={arch.title} className="slide-card-img" />
-                      <div className="slide-meta">
-                        <div className="slide-title" style={{ color: arch.glowColor }}>
-                          {arch.badgeEmoji} {arch.title}
+                      {/* Nameplate */}
+                      <div className="monad-card-nameplate" style={{ height: '36px', padding: '0 12px' }}>
+                        <div className="monad-nameplate-user">
+                          {userData?.user?.profile_image_url ? (
+                            <img
+                              src={userData.user.profile_image_url}
+                              alt={displayHandle}
+                              className="monad-user-dp"
+                              style={{ width: '22px', height: '22px' }}
+                            />
+                          ) : (
+                            <div
+                              className="monad-user-dp-placeholder"
+                              style={{ width: '22px', height: '22px', fontSize: '11px', background: arch.glowColor }}
+                            >
+                              {displayHandle.replace('@', '').charAt(0).toUpperCase()}
+                            </div>
+                          )}
+                          <span className="monad-nameplate-text" style={{ fontSize: '13px' }}>
+                            @{displayHandle}
+                          </span>
                         </div>
-                        <div className="slide-lore">{arch.lore}</div>
+                        <div className="monad-nameplate-star" style={{ color: arch.glowColor, fontSize: '14px' }}>
+                          ✦
+                        </div>
+                      </div>
+
+                      {/* Art */}
+                      <div className="monad-art-frame" style={{ height: '200px', margin: '4px 0' }}>
+                        <img
+                          src={arch.image}
+                          alt={arch.title}
+                          className="monad-art-image"
+                        />
+                      </div>
+
+                      {/* Trait Box */}
+                      <div className="monad-trait-card" style={{ minHeight: '80px', padding: '8px 10px' }}>
+                        <div
+                          className="monad-trait-icon-box"
+                          style={{ width: '40px', height: '40px', background: arch.iconBg }}
+                        >
+                          <span className="monad-trait-icon" style={{ fontSize: '20px' }}>{arch.badgeEmoji}</span>
+                        </div>
+                        <div className="monad-trait-content">
+                          <div className="monad-trait-title" style={{ fontSize: '13px' }}>
+                            {arch.title}
+                          </div>
+                          <p className="monad-trait-lore" style={{ fontSize: '10px', lineHeight: 1.3 }}>
+                            {arch.lore}
+                          </p>
+                        </div>
+                      </div>
+
+                      {/* Footer */}
+                      <div className="monad-card-footer" style={{ padding: '0 4px' }}>
+                        <span className="monad-footer-brand" style={{ fontSize: '10px' }}>Hazels Cards</span>
+                        <div
+                          className="monad-wave-badge"
+                          style={{ background: arch.glowColor, color: '#040814', fontWeight: 900 }}
+                        >
+                          <span>{arch.rarity}</span>
+                        </div>
                       </div>
                     </div>
                   );
@@ -693,23 +810,40 @@ export const HazelsCards: React.FC = () => {
 
               <button
                 type="button"
+                onClick={() => setCarouselIndex((prev) => (prev + 1) % ARCHETYPES_LIST.length)}
                 className="carousel-nav-btn next"
-                onClick={() =>
-                  setCarouselIndex((prev) => (prev + 1) % ARCHETYPES_LIST.length)
-                }
+                title="Next Archetype"
               >
-                <ChevronRight style={{ width: '24px', height: '24px' }} />
+                <ChevronRight style={{ width: '28px', height: '28px' }} />
               </button>
             </div>
 
-            <div className="carousel-modal-footer">
+            {/* Carousel Bottom Control Bar */}
+            <div className="carousel-bottom-bar">
+              {/* Dots */}
+              <div className="carousel-dots">
+                {ARCHETYPES_LIST.map((_, dotIdx) => (
+                  <div
+                    key={dotIdx}
+                    onClick={() => setCarouselIndex(dotIdx)}
+                    className={`carousel-dot ${dotIdx === carouselIndex ? 'active' : ''}`}
+                  />
+                ))}
+              </div>
+
+              {/* Equip Button */}
               <button
                 type="button"
-                className="carousel-equip-btn"
-                style={{ background: 'linear-gradient(135deg, #FF2A5F, #8B5CF6)' }}
                 onClick={() => handleEquipFromCarousel(ARCHETYPES_LIST[carouselIndex])}
+                className="carousel-equip-btn"
+                style={{
+                  background: `linear-gradient(135deg, ${ARCHETYPES_LIST[carouselIndex].glowColor}, #3B82F6)`,
+                  boxShadow: `0 0 35px ${ARCHETYPES_LIST[carouselIndex].glowColor}99`,
+                }}
               >
-                Equip {ARCHETYPES_LIST[carouselIndex].title}
+                <span>{ARCHETYPES_LIST[carouselIndex].badgeEmoji}</span>
+                <span>Equip {ARCHETYPES_LIST[carouselIndex].title}</span>
+                <Sparkles style={{ width: '16px', height: '16px' }} />
               </button>
             </div>
           </div>
