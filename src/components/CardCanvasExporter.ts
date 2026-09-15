@@ -54,7 +54,7 @@ export async function generateProofOfWorkPNG(data: CardExportData): Promise<Blob
   const bannerX = width * 0.095;
   const bannerY = height * 0.43;
   const bannerW = width * 0.81;
-  const bannerH = height * 0.41;
+  const bannerH = height * 0.38;
 
   const padX = 42;
   const padY = 24;
@@ -186,7 +186,7 @@ export async function generateProofOfWorkPNG(data: CardExportData): Promise<Blob
   }
 
   // 6. Bottom Date Footer
-  const footerY = bannerY + bannerH - padY;
+  const footerY = bannerY + bannerH - padY - 10;
   const startStr = series.length > 0 ? formatDateMonthYear(series[0].t) : '';
   const endStr = series.length > 0 ? formatDateMonthYear(series[series.length - 1].t) : '';
 

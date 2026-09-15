@@ -318,13 +318,13 @@ export const ProofOfWork: React.FC = () => {
               style={{
                 position: 'absolute',
                 top: '43%',
-                left: '9.5%',
-                right: '9.5%',
-                bottom: '15%',
+                left: '10%',
+                right: '10%',
+                bottom: '18.5%',
                 display: 'flex',
                 flexDirection: 'column',
                 justifyContent: 'space-between',
-                padding: 'clamp(6px, 1.4vw, 16px) clamp(10px, 2.2vw, 26px)',
+                padding: 'clamp(4px, 1vw, 12px) clamp(10px, 2vw, 24px) clamp(8px, 1.4vw, 16px)',
                 zIndex: 2,
               }}
             >
@@ -391,8 +391,19 @@ export const ProofOfWork: React.FC = () => {
                 {renderSparkline()}
               </div>
 
-              {/* Bottom Footer Row: Date Range & Watermark */}
-              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', fontSize: 'clamp(8px, 1vw, 11px)', color: '#94A3B8', fontWeight: 600 }}>
+              {/* Bottom Footer Row: Date Range & Watermark (Uplifted inside the cloth) */}
+              <div
+                style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'space-between',
+                  fontSize: 'clamp(8px, 0.95vw, 11px)',
+                  color: '#64748B',
+                  fontWeight: 600,
+                  marginTop: 'auto',
+                  transform: 'translateY(-4px)',
+                }}
+              >
                 <span>
                   {data.series && data.series.length > 0
                     ? `${formatDateMonthYear(data.series[0]?.t)} – ${formatDateMonthYear(data.series[data.series.length - 1]?.t)}`
