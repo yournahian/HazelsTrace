@@ -1,18 +1,27 @@
-'use client';
-
 import React, { useState } from 'react';
 import { HazelsLogo } from './HazelsLogo';
 
 export const FollowGate: React.FC = () => {
   const [isOpen, setIsOpen] = useState(true);
+  const [followedNahian, setFollowedNahian] = useState(false);
+  const [followedSallu, setFollowedSallu] = useState(false);
   const [step, setStep] = useState<'prompt' | 'detecting' | 'unlocked'>('prompt');
 
-  const handleFollowClick = (url: string = 'https://x.com/0xhazels') => {
-    window.open(url, '_blank', 'noopener,noreferrer');
+  const handleFollowNahian = () => {
+    window.open('https://x.com/yournahian', '_blank', 'noopener,noreferrer');
+    setFollowedNahian(true);
+  };
+
+  const handleFollowSallu = () => {
+    window.open('https://x.com/sallubroz', '_blank', 'noopener,noreferrer');
+    setFollowedSallu(true);
+  };
+
+  const handleVerify = () => {
     setStep('detecting');
     setTimeout(() => {
       setStep('unlocked');
-    }, 3000);
+    }, 2000);
   };
 
   const handleEnter = () => {
@@ -41,9 +50,9 @@ export const FollowGate: React.FC = () => {
       <div
         style={{
           width: '100%',
-          maxWidth: '420px',
-          background: 'rgba(12, 16, 26, 0.95)',
-          border: '1px solid rgba(255, 42, 95, 0.3)',
+          maxWidth: '440px',
+          background: 'rgba(12, 16, 26, 0.98)',
+          border: '1px solid rgba(255, 42, 95, 0.35)',
           borderRadius: '24px',
           overflow: 'hidden',
           boxShadow: '0 24px 60px rgba(0, 0, 0, 0.85), 0 0 40px rgba(255, 42, 95, 0.25)',
@@ -51,6 +60,7 @@ export const FollowGate: React.FC = () => {
           color: '#ffffff',
         }}
       >
+        {/* Banner */}
         <div
           style={{
             height: '90px',
@@ -105,7 +115,7 @@ export const FollowGate: React.FC = () => {
           >
             <img
               src="/brand/mark.png"
-              alt="0xhazels mark"
+              alt="Hazels mark"
               style={{ width: '80%', height: '80%', objectFit: 'contain' }}
             />
           </div>
@@ -120,7 +130,7 @@ export const FollowGate: React.FC = () => {
                   color: '#ffffff',
                 }}
               >
-                Enter the Eighth Rise Dojo
+                Enter Hazels Trace
               </h2>
               <p
                 style={{
@@ -130,14 +140,63 @@ export const FollowGate: React.FC = () => {
                   lineHeight: '1.45',
                 }}
               >
-                Follow the official Hazels Studio on X (@0xhazels) to unlock access to the GTD race, YORAI analytics, and anime collectible cards.
+                Follow the creators on X to unlock the GTD race, YORAI analytics, Versus Arena, and Hazels collectible cards.
               </p>
+
+              {/* Follow actions for both */}
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', marginTop: '18px' }}>
+                <button
+                  type="button"
+                  onClick={handleFollowNahian}
+                  style={{
+                    width: '100%',
+                    background: followedNahian ? 'rgba(34, 197, 94, 0.15)' : 'rgba(255, 42, 95, 0.15)',
+                    color: followedNahian ? '#4ADE80' : '#ffffff',
+                    border: followedNahian ? '1px solid #22C55E' : '1px solid rgba(255, 42, 95, 0.4)',
+                    borderRadius: '14px',
+                    padding: '12px 18px',
+                    fontSize: '13px',
+                    fontWeight: '700',
+                    cursor: 'pointer',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'space-between',
+                    transition: 'all 0.2s ease',
+                  }}
+                >
+                  <span>Follow <strong>@yournahian</strong> on X</span>
+                  <span>{followedNahian ? '✓ Followed' : 'Follow →'}</span>
+                </button>
+
+                <button
+                  type="button"
+                  onClick={handleFollowSallu}
+                  style={{
+                    width: '100%',
+                    background: followedSallu ? 'rgba(34, 197, 94, 0.15)' : 'rgba(139, 92, 246, 0.15)',
+                    color: followedSallu ? '#4ADE80' : '#ffffff',
+                    border: followedSallu ? '1px solid #22C55E' : '1px solid rgba(139, 92, 246, 0.4)',
+                    borderRadius: '14px',
+                    padding: '12px 18px',
+                    fontSize: '13px',
+                    fontWeight: '700',
+                    cursor: 'pointer',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'space-between',
+                    transition: 'all 0.2s ease',
+                  }}
+                >
+                  <span>Follow <strong>@sallubroz</strong> on X</span>
+                  <span>{followedSallu ? '✓ Followed' : 'Follow →'}</span>
+                </button>
+              </div>
 
               <button
                 type="button"
-                onClick={() => handleFollowClick('https://x.com/0xhazels')}
+                onClick={handleVerify}
                 style={{
-                  marginTop: '20px',
+                  marginTop: '16px',
                   width: '100%',
                   background: 'linear-gradient(135deg, #FF2A5F, #8B5CF6)',
                   color: '#ffffff',
@@ -150,7 +209,7 @@ export const FollowGate: React.FC = () => {
                   boxShadow: '0 0 20px rgba(255, 42, 95, 0.4)',
                 }}
               >
-                Follow @0xhazels on X
+                Verify & Enter Dojo
               </button>
 
               <button
@@ -161,20 +220,20 @@ export const FollowGate: React.FC = () => {
                   width: '100%',
                   background: 'transparent',
                   color: 'var(--arc-text-muted, #94A3B8)',
-                  border: '1px solid rgba(255,255,255,0.1)',
+                  border: '1px solid rgba(255,255,255,0.08)',
                   borderRadius: '14px',
-                  padding: '10px 18px',
+                  padding: '9px 18px',
                   fontSize: '12px',
                   cursor: 'pointer',
                 }}
               >
-                Already Following / Enter Dojo
+                Already Following / Skip
               </button>
             </>
           )}
 
           {step === 'detecting' && (
-            <div style={{ padding: '20px 0' }}>
+            <div style={{ padding: '24px 0' }}>
               <div
                 style={{
                   width: '36px',
@@ -189,17 +248,17 @@ export const FollowGate: React.FC = () => {
               <h3 style={{ fontSize: '16px', fontWeight: '700', color: '#fff' }}>
                 Verifying Dojo Access...
               </h3>
-              <p style={{ fontSize: '12px', color: 'var(--arc-text-muted, #94A3B8)' }}>
-                Checking @0xhazels connection on the ledger
+              <p style={{ fontSize: '12px', color: 'var(--arc-text-muted, #94A3B8)', marginTop: '4px' }}>
+                Confirming @yournahian and @sallubroz connections
               </p>
             </div>
           )}
 
           {step === 'unlocked' && (
-            <div style={{ padding: '16px 0' }}>
+            <div style={{ padding: '20px 0' }}>
               <div
                 style={{
-                  fontSize: '32px',
+                  fontSize: '36px',
                   marginBottom: '10px',
                 }}
               >
@@ -208,8 +267,8 @@ export const FollowGate: React.FC = () => {
               <h3 style={{ fontSize: '18px', fontWeight: '800', color: '#FF2A5F' }}>
                 Access Granted: Welcome Contender
               </h3>
-              <p style={{ fontSize: '12px', color: 'var(--arc-text-muted, #94A3B8)', marginBottom: '16px' }}>
-                Fall seven times, rise the eighth. The Dojo is open.
+              <p style={{ fontSize: '12px', color: 'var(--arc-text-muted, #94A3B8)', marginBottom: '18px', marginTop: '4px' }}>
+                七転び八起き — Fall seven times, rise the eighth. The Dojo is open.
               </p>
               <button
                 type="button"
@@ -224,6 +283,7 @@ export const FollowGate: React.FC = () => {
                   fontSize: '14px',
                   fontWeight: '800',
                   cursor: 'pointer',
+                  boxShadow: '0 0 20px rgba(255, 42, 95, 0.4)',
                 }}
               >
                 Enter Hazels Trace

@@ -90,31 +90,31 @@ export const NavigationDock: React.FC<NavigationDockProps> = ({
   onSelectTab,
 }) => {
   return (
-    <aside className="nav-dock-container" aria-label="Main Navigation">
-      <div className="nav-dock-pill">
+    <nav className="nav-dock" aria-label="Main Navigation">
+      <ul className="nav-list">
         {TABS.map((tab) => {
           const isActive = activeTab === tab.id;
           const Icon = tab.icon;
 
           return (
-            <button
-              key={tab.id}
-              onClick={() => onSelectTab(tab.id)}
-              className={`nav-dock-item ${isActive ? 'is-active' : ''}`}
-              title={tab.label}
-              aria-label={tab.label}
-            >
-              <span className="dock-icon">
+            <li key={tab.id}>
+              <button
+                type="button"
+                onClick={() => onSelectTab(tab.id)}
+                className={`dock-btn ${isActive ? 'active' : ''}`}
+                aria-label={tab.label}
+                aria-current={isActive ? 'page' : undefined}
+              >
                 <Icon />
-              </span>
-              <span className="dock-tooltip">
-                <span style={{ color: '#FF2A5F', marginRight: '4px', fontSize: '10px' }}>{tab.kanji}</span>
-                {tab.label}
-              </span>
-            </button>
+                <span className="tooltip">
+                  <span style={{ color: '#FF2A5F', marginRight: '6px', fontSize: '10px' }}>{tab.kanji}</span>
+                  {tab.label}
+                </span>
+              </button>
+            </li>
           );
         })}
-      </div>
-    </aside>
+      </ul>
+    </nav>
   );
 };
