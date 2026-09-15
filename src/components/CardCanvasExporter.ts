@@ -27,8 +27,9 @@ function formatDateMonthYear(dateStr: string): string {
 }
 
 export async function generateProofOfWorkPNG(data: CardExportData): Promise<Blob | null> {
-  const width = 1080;
-  const height = 620;
+  // Ultra high-res 2x scaling: 2048 x 818
+  const width = 2048;
+  const height = 818;
 
   const canvas = document.createElement('canvas');
   canvas.width = width;
@@ -37,133 +38,100 @@ export async function generateProofOfWorkPNG(data: CardExportData): Promise<Blob
   const ctx = canvas.getContext('2d');
   if (!ctx) return null;
 
-  // Background
-  ctx.fillStyle = '#010101';
-  ctx.fillRect(0, 0, width, height);
-
-  const radGlow = ctx.createRadialGradient(width / 2, 0, 10, width / 2, 0, 480);
-  radGlow.addColorStop(0, 'rgba(255, 42, 95, 0.18)');
-  radGlow.addColorStop(1, 'transparent');
-  ctx.fillStyle = radGlow;
-  ctx.fillRect(0, 0, width, height);
-
-  // Subtle coordinate grid
-  ctx.strokeStyle = 'rgba(232, 227, 213, 0.025)';
-  ctx.lineWidth = 1;
-  for (let x = 0; x < width; x += 40) {
-    ctx.beginPath();
-    ctx.moveTo(x, 0);
-    ctx.lineTo(x, height);
-    ctx.stroke();
-  }
-  for (let y = 0; y < height; y += 40) {
-    ctx.beginPath();
-    ctx.moveTo(0, y);
-    ctx.lineTo(width, y);
-    ctx.stroke();
+  // 1. Draw the Anime Banner Character Background
+  const bgImg = await loadImage('/brand/pow-banner-bg.png');
+  if (bgImg) {
+    ctx.drawImage(bgImg, 0, 0, width, height);
+  } else {
+    // Fallback if image fails to load
+    ctx.fillStyle = '#0F172A';
+    ctx.fillRect(0, 0, width, height);
   }
 
-  // Card Outer Container
-  const cardPadX = 64;
-  const cardPadY = 48;
-  const cardW = width - cardPadX * 2;
-  const cardH = height - cardPadY * 2;
-  const radius = 28;
+  // Banner bounds in 2048x818 canvas:
+  // Banner starts at x = 9.5% * 2048 = 195, y = 43% * 818 = 352
+  // Width = 81% * 2048 = 1658, Height = 41% * 818 = 335
+  const bannerX = width * 0.095;
+  const bannerY = height * 0.43;
+  const bannerW = width * 0.81;
+  const bannerH = height * 0.41;
 
-  // Card Background (Pure White Canvas)
-  ctx.save();
-  ctx.shadowColor = 'rgba(0, 0, 0, 0.6)';
-  ctx.shadowBlur = 40;
-  ctx.shadowOffsetY = 14;
+  const padX = 42;
+  const padY = 24;
 
-  ctx.fillStyle = '#FFFFFF';
-  ctx.beginPath();
-  ctx.roundRect(cardPadX, cardPadY, cardW, cardH, radius);
-  ctx.fill();
-  ctx.restore();
+  // 2. User Profile (Avatar, Display Name, Handle)
+  const avatarSize = 64;
+  const avatarX = bannerX + padX;
+  const avatarY = bannerY + padY;
 
-  // Subtle inner card border
-  ctx.strokeStyle = 'rgba(0, 0, 0, 0.06)';
-  ctx.lineWidth = 1.5;
-  ctx.beginPath();
-  ctx.roundRect(cardPadX, cardPadY, cardW, cardH, radius);
-  ctx.stroke();
-
-  // Header Area: User profile (Avatar, Name, Handle)
-  const userHeadY = cardPadY + 44;
-  const avatarSize = 56;
-  const avatarX = cardPadX + 44;
-  const avatarY = userHeadY;
-
-  // Load and draw avatar
   const avatarImg = await loadImage(data.avatar);
   ctx.save();
   ctx.beginPath();
   ctx.arc(avatarX + avatarSize / 2, avatarY + avatarSize / 2, avatarSize / 2, 0, Math.PI * 2);
   ctx.clip();
-
   if (avatarImg) {
     ctx.drawImage(avatarImg, avatarX, avatarY, avatarSize, avatarSize);
   } else {
     ctx.fillStyle = '#FF2A5F';
     ctx.fillRect(avatarX, avatarY, avatarSize, avatarSize);
     ctx.fillStyle = '#FFFFFF';
-    ctx.font = 'bold 22px Inter, sans-serif';
+    ctx.font = 'bold 28px Inter, sans-serif';
     ctx.textAlign = 'center';
     ctx.textBaseline = 'middle';
     ctx.fillText(data.name.charAt(0).toUpperCase(), avatarX + avatarSize / 2, avatarY + avatarSize / 2);
   }
   ctx.restore();
 
-  // User Names
-  const textLeft = avatarX + avatarSize + 16;
-  ctx.fillStyle = '#0A0A0A';
-  ctx.font = 'bold 20px Inter, -apple-system, sans-serif';
+  // Name & Handle
+  ctx.fillStyle = '#0F172A';
+  ctx.font = 'bold 28px Inter, -apple-system, sans-serif';
   ctx.textAlign = 'left';
   ctx.textBaseline = 'top';
-  ctx.fillText(data.name, textLeft, avatarY + 6);
+  ctx.fillText(data.name, avatarX + avatarSize + 16, avatarY + 4);
 
-  ctx.fillStyle = 'rgba(10, 10, 10, 0.5)';
-  ctx.font = '500 15px Inter, -apple-system, sans-serif';
-  ctx.fillText(`@${data.handle}`, textLeft, avatarY + 32);
+  ctx.fillStyle = '#64748B';
+  ctx.font = '600 20px Inter, -apple-system, sans-serif';
+  ctx.fillText(`@${data.handle}`, avatarX + avatarSize + 16, avatarY + 36);
 
-  // Target Pill (Right corner)
-  const badgeW = 90;
-  const badgeH = 32;
-  const badgeX = cardPadX + cardW - badgeW - 44;
-  const badgeY = avatarY + 12;
+  // 3. Target Pill (@0xhazels) on the right of banner
+  const pillW = 140;
+  const pillH = 44;
+  const pillX = bannerX + bannerW - padX - pillW;
+  const pillY = avatarY + 8;
 
-  ctx.fillStyle = '#F8FAFC';
-  ctx.strokeStyle = 'rgba(0, 0, 0, 0.08)';
-  ctx.lineWidth = 1;
+  ctx.save();
+  ctx.fillStyle = '#F1F5F9';
+  ctx.strokeStyle = '#CBD5E1';
+  ctx.lineWidth = 2;
   ctx.beginPath();
-  ctx.roundRect(badgeX, badgeY, badgeW, badgeH, 16);
+  ctx.roundRect(pillX, pillY, pillW, pillH, 22);
   ctx.fill();
   ctx.stroke();
 
   ctx.fillStyle = '#FF2A5F';
-  ctx.font = 'bold 13px Inter, sans-serif';
+  ctx.font = 'bold 18px Inter, sans-serif';
   ctx.textAlign = 'center';
   ctx.textBaseline = 'middle';
-  ctx.fillText('0xhazels', badgeX + badgeW / 2, badgeY + badgeH / 2);
+  ctx.fillText('0xhazels', pillX + pillW / 2, pillY + pillH / 2);
+  ctx.restore();
 
-  // Impressions Number
-  const statY = avatarY + avatarSize + 44;
-  ctx.fillStyle = '#010101';
-  ctx.font = 'bold 54px Space Grotesk, Inter, sans-serif';
+  // 4. Impressions Counter & Caption
+  const statY = avatarY + avatarSize + 28;
+  ctx.fillStyle = '#0F172A';
+  ctx.font = '900 68px Space Grotesk, Inter, sans-serif';
   ctx.textAlign = 'left';
   ctx.textBaseline = 'top';
-  ctx.fillText(data.impressions.toLocaleString(), cardPadX + 46, statY - 32);
+  ctx.fillText(data.impressions.toLocaleString(), bannerX + padX, statY);
 
-  ctx.fillStyle = 'rgba(10, 10, 10, 0.55)';
-  ctx.font = '500 16px Inter, sans-serif';
-  ctx.fillText('Impressions generated for 0xhazels', cardPadX + 46, statY + 30);
+  ctx.fillStyle = '#64748B';
+  ctx.font = '600 22px Inter, sans-serif';
+  ctx.fillText('Impressions generated for 0xhazels', bannerX + padX, statY + 74);
 
-  // Line Chart
-  const chartX = cardPadX + 44;
-  const chartY = statY + 75;
-  const chartW = cardW - 88;
-  const chartH = 140;
+  // 5. Sparkline Curve Chart on right of counter
+  const chartX = bannerX + bannerW * 0.48;
+  const chartY = statY + 10;
+  const chartW = bannerW * 0.46;
+  const chartH = 95;
 
   const series = data.series || [];
   if (series.length >= 2) {
@@ -189,16 +157,16 @@ export async function generateProofOfWorkPNG(data: CardExportData): Promise<Blob
     ctx.closePath();
 
     const areaGrad = ctx.createLinearGradient(0, chartY, 0, chartY + chartH);
-    areaGrad.addColorStop(0, 'rgba(255, 42, 95, 0.22)');
-    areaGrad.addColorStop(1, 'rgba(255, 42, 95, 0.01)');
+    areaGrad.addColorStop(0, 'rgba(255, 42, 95, 0.28)');
+    areaGrad.addColorStop(1, 'rgba(255, 42, 95, 0.02)');
     ctx.fillStyle = areaGrad;
     ctx.fill();
     ctx.restore();
 
-    // Chart stroke line
+    // Line
     ctx.save();
     ctx.strokeStyle = '#FF2A5F';
-    ctx.lineWidth = 3.5;
+    ctx.lineWidth = 4;
     ctx.lineCap = 'round';
     ctx.lineJoin = 'round';
     ctx.beginPath();
@@ -212,31 +180,24 @@ export async function generateProofOfWorkPNG(data: CardExportData): Promise<Blob
     const last = points[points.length - 1];
     ctx.fillStyle = '#FF2A5F';
     ctx.beginPath();
-    ctx.arc(last.x, last.y, 6, 0, Math.PI * 2);
+    ctx.arc(last.x, last.y, 7, 0, Math.PI * 2);
     ctx.fill();
     ctx.restore();
   }
 
-  // Bottom Divider & Footer
-  const footerY = chartY + chartH + 34;
-  ctx.strokeStyle = 'rgba(0, 0, 0, 0.06)';
-  ctx.lineWidth = 1;
-  ctx.beginPath();
-  ctx.moveTo(cardPadX + 44, footerY - 14);
-  ctx.lineTo(cardPadX + cardW - 44, footerY - 14);
-  ctx.stroke();
-
+  // 6. Bottom Date Footer
+  const footerY = bannerY + bannerH - padY;
   const startStr = series.length > 0 ? formatDateMonthYear(series[0].t) : '';
   const endStr = series.length > 0 ? formatDateMonthYear(series[series.length - 1].t) : '';
 
-  ctx.fillStyle = 'rgba(10, 10, 10, 0.4)';
-  ctx.font = '500 14px Inter, sans-serif';
+  ctx.fillStyle = '#94A3B8';
+  ctx.font = '600 18px Inter, sans-serif';
   ctx.textAlign = 'left';
-  ctx.textBaseline = 'middle';
-  ctx.fillText(data.series.length > 0 ? `${startStr} – ${endStr}` : 'studio.hazels.io', cardPadX + 46, footerY);
+  ctx.textBaseline = 'bottom';
+  ctx.fillText(series.length > 0 ? `${startStr} – ${endStr}` : 'studio.hazels.io', bannerX + padX, footerY);
 
   ctx.textAlign = 'right';
-  ctx.fillText('Hazels Trace • studio.hazels.io', cardPadX + cardW - 46, footerY);
+  ctx.fillText('Hazels Trace • studio.hazels.io', bannerX + bannerW - padX, footerY);
 
   return new Promise((resolve) => {
     canvas.toBlob((blob) => resolve(blob), 'image/png');

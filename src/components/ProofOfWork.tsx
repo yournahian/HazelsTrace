@@ -96,7 +96,7 @@ export const ProofOfWork: React.FC = () => {
         const url = URL.createObjectURL(blob);
         const a = document.createElement('a');
         a.href = url;
-        a.download = `${data.profile.screen_name}-hazels-proof.png`;
+        a.download = `${data.profile.screen_name}-hazels-banner.png`;
         document.body.appendChild(a);
         a.click();
         a.remove();
@@ -118,10 +118,10 @@ export const ProofOfWork: React.FC = () => {
   const renderSparkline = () => {
     if (!data || !data.series || data.series.length < 2) return null;
 
-    const width = 440;
-    const height = 120;
-    const paddingX = 10;
-    const paddingY = 15;
+    const width = 360;
+    const height = 75;
+    const paddingX = 8;
+    const paddingY = 10;
 
     const values = data.series.map((d) => d.v);
     const min = Math.min(...values);
@@ -144,19 +144,19 @@ export const ProofOfWork: React.FC = () => {
     const areaD = `${d} L ${points[points.length - 1].x} ${height} L ${points[0].x} ${height} Z`;
 
     return (
-      <div className="proof-sparkline-wrap">
+      <div style={{ width: '100%', maxWidth: '360px', height: '75px' }}>
         <svg
           viewBox={`0 0 ${width} ${height}`}
           preserveAspectRatio="none"
-          className="proof-sparkline-svg"
+          style={{ width: '100%', height: '100%', overflow: 'visible' }}
         >
           <defs>
-            <linearGradient id="hazelsGlow" x1="0" y1="0" x2="0" y2="1">
+            <linearGradient id="bannerGlow" x1="0" y1="0" x2="0" y2="1">
               <stop offset="0%" stopColor="#FF2A5F" stopOpacity="0.25" />
               <stop offset="100%" stopColor="#FF2A5F" stopOpacity="0.0" />
             </linearGradient>
           </defs>
-          <path d={areaD} fill="url(#hazelsGlow)" />
+          <path d={areaD} fill="url(#bannerGlow)" />
           <path
             d={d}
             fill="none"
@@ -195,7 +195,7 @@ export const ProofOfWork: React.FC = () => {
     : null;
 
   return (
-    <div className="pow-box">
+    <div className="pow-box" style={{ width: '100%', maxWidth: '880px', margin: '0 auto' }}>
       {!data && !loading && (
         <>
           <div style={{ textAlign: 'center', marginBottom: '24px' }}>
@@ -207,7 +207,7 @@ export const ProofOfWork: React.FC = () => {
             </p>
           </div>
 
-          <form onSubmit={handleSubmit} className="search-form">
+          <form onSubmit={handleSubmit} className="search-form" style={{ maxWidth: '480px', margin: '0 auto' }}>
             <input
               type="text"
               autoFocus
@@ -232,7 +232,7 @@ export const ProofOfWork: React.FC = () => {
             </p>
           )}
 
-          <div className="sample-handles">
+          <div className="sample-handles" style={{ marginTop: '16px' }}>
             <span style={{ fontSize: '11px', color: 'var(--rialo-text-muted)', fontWeight: '600', marginRight: '4px' }}>
               Quick Try:
             </span>
@@ -262,6 +262,8 @@ export const ProofOfWork: React.FC = () => {
             borderRadius: '24px',
             padding: '40px',
             width: '100%',
+            maxWidth: '520px',
+            margin: '0 auto',
             textAlign: 'center',
             boxShadow: '0 20px 50px rgba(0,0,0,0.5)',
           }}
@@ -281,144 +283,218 @@ export const ProofOfWork: React.FC = () => {
       )}
 
       {data && (
-        <div style={{ width: '100%', display: 'flex', flexDirection: 'column', gap: '16px' }}>
-          <div className="proof-card">
-            <div className="proof-card-header">
-              <div className="user-profile-meta">
-                <div className="avatar-container">
-                  {/* eslint-disable-next-line @next/next/no-img-element */}
+        <div style={{ width: '100%', display: 'flex', flexDirection: 'column', gap: '20px' }}>
+          {/* ANIME CHARACTER BANNER RESULT CARD */}
+          <div
+            style={{
+              position: 'relative',
+              width: '100%',
+              maxWidth: '860px',
+              margin: '0 auto',
+              aspectRatio: '1024 / 409',
+              borderRadius: '24px',
+              overflow: 'hidden',
+              border: '1px solid rgba(255, 42, 95, 0.4)',
+              boxShadow: '0 24px 60px rgba(0, 0, 0, 0.85), 0 0 50px rgba(255, 42, 95, 0.3)',
+              background: '#070912',
+            }}
+          >
+            {/* Background Anime Illustration */}
+            <img
+              src="/brand/pow-banner-bg.png"
+              alt="Hazels Banner"
+              style={{
+                position: 'absolute',
+                inset: 0,
+                width: '100%',
+                height: '100%',
+                objectFit: 'cover',
+                pointerEvents: 'none',
+              }}
+            />
+
+            {/* Content rendered directly onto the held white fabric banner */}
+            <div
+              style={{
+                position: 'absolute',
+                top: '43%',
+                left: '9.5%',
+                right: '9.5%',
+                bottom: '15%',
+                display: 'flex',
+                flexDirection: 'column',
+                justifyContent: 'space-between',
+                padding: 'clamp(6px, 1.4vw, 16px) clamp(10px, 2.2vw, 26px)',
+                zIndex: 2,
+              }}
+            >
+              {/* Top row: User Profile & Target Badge */}
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 'clamp(6px, 1vw, 12px)' }}>
                   <img
                     src={data.profile.avatar}
                     alt={data.profile.name}
+                    style={{
+                      width: 'clamp(26px, 3.5vw, 42px)',
+                      height: 'clamp(26px, 3.5vw, 42px)',
+                      borderRadius: '50%',
+                      objectFit: 'cover',
+                      border: '2px solid rgba(15, 23, 42, 0.2)',
+                      boxShadow: '0 2px 6px rgba(0,0,0,0.15)',
+                    }}
                     onError={(e) => {
                       (e.currentTarget as HTMLElement).style.display = 'none';
                     }}
                   />
-                </div>
-                <div className="user-names">
-                  <div className="user-display-name">
-                    <span>{data.profile.name}</span>
-                    {data.profile.verified && (
-                      <svg viewBox="0 0 24 24" fill="#1D9BF0" className="verified-icon">
-                        <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z" />
-                      </svg>
-                    )}
+                  <div>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '4px', fontSize: 'clamp(11px, 1.4vw, 15px)', fontWeight: 800, color: '#0F172A', lineHeight: 1.1 }}>
+                      <span>{data.profile.name}</span>
+                      {data.profile.verified && (
+                        <svg viewBox="0 0 24 24" fill="#1D9BF0" style={{ width: '14px', height: '14px' }}>
+                          <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z" />
+                        </svg>
+                      )}
+                    </div>
+                    <div style={{ fontSize: 'clamp(9px, 1.1vw, 12px)', color: '#64748B', fontWeight: 600 }}>
+                      @{data.profile.screen_name}
+                    </div>
                   </div>
-                  <div className="user-handle">@{data.profile.screen_name}</div>
+                </div>
+
+                <div
+                  style={{
+                    background: '#F1F5F9',
+                    border: '1px solid #CBD5E1',
+                    borderRadius: '9999px',
+                    padding: '2px clamp(8px, 1.2vw, 14px)',
+                    fontSize: 'clamp(9px, 1.1vw, 12px)',
+                    fontWeight: 800,
+                    color: '#FF2A5F',
+                    letterSpacing: '0.04em',
+                  }}
+                >
+                  0xhazels
                 </div>
               </div>
 
-              <div className="rialo-target-tag" style={{ borderColor: 'rgba(255, 42, 95, 0.3)', color: '#FF2A5F', background: 'rgba(255, 42, 95, 0.08)' }}>
-                <span>0xhazels</span>
-              </div>
-            </div>
-
-            <div className="proof-stat-body">
-              <div className="impressions-big-num">
-                {data.total_impressions.toLocaleString()}
-              </div>
-              <div className="impressions-caption">
-                Impressions generated for 0xhazels
-              </div>
-            </div>
-
-            {renderSparkline()}
-
-            {data.total_impressions === 0 && (
-              <div style={{
-                margin: '16px 0',
-                padding: '16px',
-                background: 'rgba(255, 42, 95, 0.05)',
-                border: '1px dashed rgba(255, 42, 95, 0.3)',
-                borderRadius: '12px',
-                textAlign: 'center'
-              }}>
-                <div style={{ fontSize: '13px', fontWeight: '600', color: '#FF7597', marginBottom: '4px' }}>
-                  No Hazels contributions indexed yet
+              {/* Middle Section: Big Impressions Number & Sparkline */}
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '16px' }}>
+                <div>
+                  <div style={{ fontSize: 'clamp(22px, 3.8vw, 42px)', fontWeight: 900, fontFamily: 'var(--font-display, sans-serif)', color: '#0F172A', lineHeight: 1 }}>
+                    {data.total_impressions.toLocaleString()}
+                  </div>
+                  <div style={{ fontSize: 'clamp(9px, 1.1vw, 13px)', color: '#64748B', fontWeight: 600, marginTop: '2px' }}>
+                    Impressions generated for 0xhazels
+                  </div>
                 </div>
-                <div style={{ fontSize: '12px', color: 'var(--rialo-text-muted)', lineHeight: '1.4' }}>
-                  Tweet mentioning <strong style={{ color: 'var(--rialo-text)' }}>@0xhazels</strong> or <strong style={{ color: 'var(--rialo-text)' }}>#hazels</strong> on X to start earning indexed Proof of Work!
-                </div>
+
+                {renderSparkline()}
               </div>
-            )}
 
-            <div className="proof-date-footer">
-              <span>
-                {data.series && data.series.length > 0 ? `${formatDateMonthYear(data.series[0]?.t)} – ${formatDateMonthYear(data.series[data.series.length - 1]?.t)}` : 'Hazels Index'}
-              </span>
-              <button
-                type="button"
-                onClick={handleDownloadPNG}
-                disabled={downloading}
-                className="download-icon-btn"
-                title="Download Badge PNG"
-                aria-label="Download Badge PNG"
-              >
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" width="18" height="18">
-                  <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
-                  <polyline points="7 10 12 15 17 10" />
-                  <line x1="12" y1="15" x2="12" y2="3" />
-                </svg>
-              </button>
-            </div>
-
-            <div className="proof-actions">
-              <a
-                href={`https://twitter.com/intent/tweet?text=${shareText}`}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="card-action-btn share"
-              >
-                <svg viewBox="0 0 24 24" fill="currentColor" width="14" height="14">
-                  <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z" />
-                </svg>
-                Share to X
-              </a>
-
-              <button
-                type="button"
-                onClick={handleDownloadPNG}
-                disabled={downloading}
-                className="card-action-btn download"
-                style={{ background: '#FF2A5F', color: '#010101' }}
-              >
-                {downloading ? (
-                  <span>Generating...</span>
-                ) : (
-                  <>
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" width="15" height="15">
-                      <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
-                      <polyline points="7 10 12 15 17 10" />
-                      <line x1="12" y1="15" x2="12" y2="3" />
-                    </svg>
-                    <span>Download Card</span>
-                  </>
-                )}
-              </button>
-
-              <button
-                type="button"
-                onClick={() => {
-                  setData(null);
-                  setHandleInput('');
-                }}
-                className="card-action-btn retry"
-                title="Audit another username"
-                aria-label="Audit another username"
-              >
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" width="16" height="16">
-                  <path d="M3 12a9 9 0 0 1 15-6.7L21 8" />
-                  <path d="M21 3v5h-5" />
-                  <path d="M21 12a9 9 0 0 1-15 6.7L3 16" />
-                  <path d="M3 21v-5h5" />
-                </svg>
-              </button>
+              {/* Bottom Footer Row: Date Range & Watermark */}
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', fontSize: 'clamp(8px, 1vw, 11px)', color: '#94A3B8', fontWeight: 600 }}>
+                <span>
+                  {data.series && data.series.length > 0
+                    ? `${formatDateMonthYear(data.series[0]?.t)} – ${formatDateMonthYear(data.series[data.series.length - 1]?.t)}`
+                    : 'studio.hazels.io'}
+                </span>
+                <span>Hazels Trace • studio.hazels.io</span>
+              </div>
             </div>
           </div>
 
+          {/* Action Buttons Below Banner */}
+          <div
+            style={{
+              display: 'flex',
+              gap: '12px',
+              justifyContent: 'center',
+              alignItems: 'center',
+              flexWrap: 'wrap',
+            }}
+          >
+            <a
+              href={`https://twitter.com/intent/tweet?text=${shareText}`}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="card-action-btn share"
+              style={{
+                borderRadius: '9999px',
+                padding: '12px 26px',
+                fontSize: '14px',
+                fontWeight: 700,
+              }}
+            >
+              <svg viewBox="0 0 24 24" fill="currentColor" width="14" height="14">
+                <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z" />
+              </svg>
+              Share to X
+            </a>
+
+            <button
+              type="button"
+              onClick={handleDownloadPNG}
+              disabled={downloading}
+              className="card-action-btn download"
+              style={{
+                background: 'linear-gradient(135deg, #FF2A5F, #8B5CF6)',
+                color: '#ffffff',
+                borderRadius: '9999px',
+                padding: '12px 26px',
+                fontSize: '14px',
+                fontWeight: 700,
+                boxShadow: '0 0 24px rgba(255, 42, 95, 0.4)',
+              }}
+            >
+              {downloading ? (
+                <span>Generating PNG...</span>
+              ) : (
+                <>
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" width="16" height="16">
+                    <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+                    <polyline points="7 10 12 15 17 10" />
+                    <line x1="12" y1="15" x2="12" y2="3" />
+                  </svg>
+                  <span>Download Anime Banner</span>
+                </>
+              )}
+            </button>
+
+            <button
+              type="button"
+              onClick={() => {
+                setData(null);
+                setHandleInput('');
+              }}
+              className="card-action-btn retry"
+              title="Audit another username"
+              aria-label="Audit another username"
+              style={{
+                borderRadius: '50%',
+                width: '46px',
+                height: '46px',
+                padding: 0,
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+              }}
+            >
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" width="18" height="18">
+                <path d="M3 12a9 9 0 0 1 15-6.7L21 8" />
+                <path d="M21 3v5h-5" />
+                <path d="M21 12a9 9 0 0 1-15 6.7L3 16" />
+                <path d="M3 21v-5h5" />
+              </svg>
+            </button>
+          </div>
+
+          {/* Best Post Card (if available) */}
           {bestPost && (
             <div
               style={{
+                maxWidth: '860px',
+                margin: '0 auto',
+                width: '100%',
                 background: 'rgba(12, 12, 12, 0.85)',
                 backdropFilter: 'blur(20px)',
                 borderRadius: '16px',
