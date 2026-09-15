@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState } from 'react';
-import { Share2, Sparkles, Trophy, Award, TrendingUp, CheckCircle } from 'lucide-react';
+import { Share2, Sparkles, CheckCircle, Info } from 'lucide-react';
 import { TierBadge } from './TierBadge';
 
 interface ImpressionData {
@@ -40,47 +40,34 @@ export const ProofOfWork: React.FC = () => {
       if (json && json.ok) {
         setData(json);
       } else {
-        // Fallback realistic metrics based on seed
-        const seed = clean.split('').reduce((acc, c) => acc + c.charCodeAt(0), 0);
-        const imps = Math.floor(25000 + (seed * 1337) % 380000);
         setData({
           ok: true,
           username: clean,
-          total_impressions: imps,
-          post_count: Math.floor(10 + (seed % 45)),
+          total_impressions: 0,
+          post_count: 0,
           profile: {
             name: clean,
             screen_name: clean,
             avatar: `https://unavatar.io/x/${clean}`,
-            followers: 1200,
-            following: 600,
+            followers: 0,
+            following: 0,
             verified: false,
-            bio: 'Eighth Rise contender. Hazels Dojo community member.',
           },
-          series: [
-            { t: '2026-08-15', v: Math.floor(imps * 0.1) },
-            { t: '2026-08-22', v: Math.floor(imps * 0.35) },
-            { t: '2026-08-29', v: Math.floor(imps * 0.65) },
-            { t: '2026-09-05', v: Math.floor(imps * 0.85) },
-            { t: '2026-09-12', v: imps },
-          ],
         });
       }
     } catch {
-      const clean = handle.replace('@', '').trim();
       setData({
         ok: true,
         username: clean,
-        total_impressions: 34500,
-        post_count: 24,
+        total_impressions: 0,
+        post_count: 0,
         profile: {
           name: clean,
           screen_name: clean,
           avatar: `https://unavatar.io/x/${clean}`,
-          followers: 1200,
-          following: 600,
+          followers: 0,
+          following: 0,
           verified: false,
-          bio: 'Eighth Rise contender.',
         },
       });
     } finally {
@@ -91,7 +78,7 @@ export const ProofOfWork: React.FC = () => {
   const handleShareToX = () => {
     if (!data) return;
     const text = encodeURIComponent(
-      `I audited my GTD Proof of Work in the @0xhazels Dojo! ⚔️\n\n✨ YORAI Impressions: ${data.total_impressions.toLocaleString()}\n📜 GTD Posts: ${data.post_count}\n🥋 Rank: Verified Contender\n\nFall seven times, rise the eighth. Measure your Hazels impact:`
+      `I audited my Hazels Proof of Work! ⚔️\n\n✨ Total Impressions: ${data.total_impressions.toLocaleString()}\n📜 Verified Posts: ${data.post_count}\n\nAudit your Hazels metrics on Hazels Trace:`
     );
     const url = encodeURIComponent(window.location.href);
     window.open(`https://twitter.com/intent/tweet?text=${text}&url=${url}`, '_blank');
@@ -100,7 +87,7 @@ export const ProofOfWork: React.FC = () => {
   const imps = data?.total_impressions || 0;
 
   return (
-    <div className="feature-view-container animate-fade-in" style={{ width: '100%', maxWidth: '840px', margin: '0 auto' }}>
+    <div className="feature-view-container animate-fade-in" style={{ width: '100%', maxWidth: '780px', margin: '0 auto' }}>
       {/* Header Banner */}
       <div className="feature-header-wrap" style={{ textAlign: 'center', marginBottom: '28px' }}>
         <div
@@ -179,10 +166,10 @@ export const ProofOfWork: React.FC = () => {
             }}
           />
           <h3 style={{ fontSize: '18px', fontWeight: 800, color: '#FFFFFF', margin: 0 }}>
-            Auditing Dojo Ledger...
+            Auditing Hazels Ledger...
           </h3>
           <p style={{ fontSize: '13px', color: 'var(--arc-text-muted, #94A3B8)', marginTop: '8px' }}>
-            Calculating YORAI impressions, GTD contributions, and community multiplier
+            Fetching verified community impressions and posts
           </p>
         </div>
       )}
@@ -319,104 +306,29 @@ export const ProofOfWork: React.FC = () => {
               </div>
             </div>
 
-            {/* GTD Race Progress Bar */}
-            <div style={{ marginTop: '24px' }}>
-              <div style={{ display: 'flex', justifyContent: 'space-between', fontFamily: 'var(--font-mono, monospace)', fontSize: '12px', marginBottom: '8px' }}>
-                <span style={{ color: '#FF7597' }}>GTD Race Standing (Season 01)</span>
-                <span style={{ color: '#FFFFFF', fontWeight: 700 }}>Top 500 Qualified</span>
+            {/* Zero impressions notice */}
+            {imps === 0 && (
+              <div
+                style={{
+                  marginTop: '20px',
+                  padding: '12px 16px',
+                  borderRadius: '12px',
+                  background: 'rgba(255, 42, 95, 0.08)',
+                  border: '1px solid rgba(255, 42, 95, 0.2)',
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '10px',
+                  fontSize: '13px',
+                  color: '#E8E3D5',
+                }}
+              >
+                <Info style={{ width: '16px', height: '16px', color: '#FF7597', flexShrink: 0 }} />
+                <span>No Hazels posts or impressions detected yet for @{data.username}. Tweet about @0xhazels or studio.hazels.io to start generating Proof of Work!</span>
               </div>
-              <div style={{ height: '8px', width: '100%', background: 'rgba(255,255,255,0.08)', borderRadius: '9999px', overflow: 'hidden' }}>
-                <div
-                  style={{
-                    height: '100%',
-                    width: '68%',
-                    background: 'linear-gradient(90deg, #FF2A5F, #8B5CF6, #00E5FF)',
-                    borderRadius: '9999px',
-                    boxShadow: '0 0 12px #FF2A5F',
-                  }}
-                />
-              </div>
-            </div>
+            )}
           </div>
         </div>
       )}
-
-      {/* Three Dojo Pillars / Rules */}
-      <div
-        style={{
-          display: 'grid',
-          gridTemplateColumns: 'repeat(auto-fit, minmax(230px, 1fr))',
-          gap: '14px',
-          marginTop: '28px',
-        }}
-      >
-        {[
-          {
-            title: '01 Build Publicly on X',
-            desc: 'Post threads, analysis, updates, and feedback tagged with @0xhazels and studio.hazels.io.',
-            icon: Trophy,
-            color: '#FF2A5F',
-          },
-          {
-            title: '02 Take Part in Campaigns',
-            desc: 'Complete entry briefs, create fan art, and amplify Hazels Studio releases to earn base YORAI points.',
-            icon: Award,
-            color: '#8B5CF6',
-          },
-          {
-            title: '03 Tier Multiplier Scaling',
-            desc: 'Your social standing determines your multiplier (1.04× up to 1.75×) applied across all verified tasks.',
-            icon: TrendingUp,
-            color: '#F59E0B',
-          },
-        ].map((col, idx) => {
-          const Icon = col.icon;
-          return (
-            <div
-              key={idx}
-              style={{
-                background: 'rgba(12, 16, 26, 0.7)',
-                border: '1px solid rgba(255, 42, 95, 0.15)',
-                borderRadius: '18px',
-                padding: '20px',
-                backdropFilter: 'blur(12px)',
-              }}
-            >
-              <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-                <div
-                  style={{
-                    width: '32px',
-                    height: '32px',
-                    borderRadius: '8px',
-                    background: 'rgba(255, 42, 95, 0.1)',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                  }}
-                >
-                  <Icon style={{ width: '16px', height: '16px', color: col.color }} />
-                </div>
-                <span
-                  style={{
-                    fontSize: '11px',
-                    fontFamily: 'var(--font-mono, monospace)',
-                    color: '#FF7597',
-                    fontWeight: 700,
-                  }}
-                >
-                  RULE #{idx + 1}
-                </span>
-              </div>
-              <h4 style={{ fontSize: '15px', fontWeight: 800, color: '#FFFFFF', margin: '12px 0 6px 0' }}>
-                {col.title}
-              </h4>
-              <p style={{ fontSize: '12px', color: 'var(--arc-text-muted, #94A3B8)', lineHeight: 1.5, margin: 0 }}>
-                {col.desc}
-              </p>
-            </div>
-          );
-        })}
-      </div>
     </div>
   );
 };

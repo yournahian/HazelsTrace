@@ -17,41 +17,6 @@ interface TwitterUserResponse {
   };
 }
 
-function getUsernameSeed(str: string): number {
-  let hash = 0;
-  for (let i = 0; i < str.length; i++) {
-    hash = (hash << 5) - hash + str.charCodeAt(i);
-    hash |= 0;
-  }
-  return Math.abs(hash);
-}
-
-function generateFallbackSeries(seed: number, baseTotal: number) {
-  const points = 30;
-  const series = [];
-  const now = new Date();
-
-  let currentVal = Math.max(10, Math.floor(baseTotal * 0.05));
-  for (let i = 0; i < points; i++) {
-    const d = new Date(now);
-    d.setDate(d.getDate() - (points - 1 - i) * 2);
-    const dateStr = d.toISOString().split('T')[0];
-
-    const step = ((seed + i * 37) % 100) / 100;
-    const increment = Math.round(((baseTotal - currentVal) / (points - i)) * (0.6 + step * 0.8));
-    currentVal = Math.min(baseTotal, currentVal + increment);
-
-    series.push({
-      t: dateStr,
-      v: currentVal,
-    });
-  }
-  if (series.length > 0) {
-    series[series.length - 1].v = baseTotal;
-  }
-  return series;
-}
-
 export async function GET(req: NextRequest) {
   const { searchParams } = new URL(req.url);
   const username = searchParams.get('handle') || searchParams.get('username');
@@ -81,7 +46,7 @@ async function handleImpressions(rawUsername: string) {
   try {
     const cleanUsername = rawUsername.replace(/^@/, '').trim();
 
-    // 1. Try fetching live real data from Xerper for 0xhazels
+    // 1. Try live Xerper data for 0xhazels or hazels project
     try {
       const xerperRes = await fetch('https://xerper.com/api/impressions', {
         method: 'POST',
@@ -129,10 +94,10 @@ async function handleImpressions(rawUsername: string) {
         }
       }
     } catch (err) {
-      console.warn('Live xerper proxy fetch failed, trying direct X API / fallback:', err);
+      console.warn('Xerper request failed or no live data:', err);
     }
 
-    // 2. Second priority: If bearer token is provided, query official X API v2
+    // 2. Fetch real Twitter profile info if bearer token exists
     const bearerToken = process.env.X_API_BEARER_TOKEN;
     let profile = {
       name: cleanUsername,
@@ -140,8 +105,8 @@ async function handleImpressions(rawUsername: string) {
       avatar: `https://unavatar.io/x/${cleanUsername}`,
       banner: null as string | null,
       bio: '',
-      followers: 1200,
-      following: 800,
+      followers: 0,
+      following: 0,
       verified: false,
       joined: '',
     };
@@ -169,25 +134,20 @@ async function handleImpressions(rawUsername: string) {
                 : `https://unavatar.io/x/${cleanUsername}`,
               banner: null,
               bio: xData.data.description || '',
-              followers: xData.data.public_metrics?.followers_count || 1200,
-              following: xData.data.public_metrics?.following_count || 800,
+              followers: xData.data.public_metrics?.followers_count || 0,
+              following: xData.data.public_metrics?.following_count || 0,
               verified: Boolean(xData.data.verified),
               joined: (xData.data as any).created_at || '',
             };
           }
         }
       } catch (err) {
-        console.warn('X API request error, using fallback:', err);
+        console.warn('X API request error:', err);
       }
     }
 
-    // 3. Fallback calculation
-    const seed = getUsernameSeed(cleanUsername.toLowerCase());
-    const followerFactor = Math.max(1, Math.min(60, Math.floor(profile.followers / 200)));
-    const baseImpressions = Math.floor(18000 + (seed % 95000) * followerFactor);
-    const postCount = Math.floor(8 + (seed % 42));
-    const series = generateFallbackSeries(seed, baseImpressions);
-
+    // 3. No live impressions found for this handle under 0xhazels.
+    // Return honest 0 metrics - NO FAKE NUMBERS!
     return NextResponse.json({
       ok: true,
       username: cleanUsername,
@@ -198,9 +158,9 @@ async function handleImpressions(rawUsername: string) {
         handle: '0xhazels',
         avatar: 'https://studio.hazels.io/brand/mark.png',
       },
-      total_impressions: baseImpressions,
-      post_count: postCount,
-      series,
+      total_impressions: 0,
+      post_count: 0,
+      series: [],
       posts: [],
     });
   } catch (error) {

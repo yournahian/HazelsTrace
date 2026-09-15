@@ -1,172 +1,206 @@
+'use client';
+
 import React, { useState, useRef, useEffect } from 'react';
 import { Download, Share2, Sparkles, RefreshCw, Copy, Check, Palette, ChevronLeft, ChevronRight, X } from 'lucide-react';
 import { exportHazelsCardPNG } from './HazelsCardCanvasExporter';
-import { HazelsLogo, HazelsIcon } from './HazelsLogo';
 
 export interface CardArchetype {
   id: string;
   title: string;
-  series: string;
-  rarity: string;
-  glowColor: string;
-  badgeEmoji: string;
   lore: string;
+  rarity: 'MYTHIC' | 'LEGENDARY' | 'EPIC' | 'RARE';
+  glowColor: string;
   image: string;
+  badgeEmoji: string;
   iconBg: string;
 }
 
-// 10 100% Original Hazels Studio Characters from studio.hazels.io
 export const HAZELS_ARCHETYPES: Record<string, CardArchetype> = {
   rei: {
     id: 'rei',
-    title: 'Rei · Blade of Dawn',
-    series: 'GENESIS WAVE 1',
-    rarity: 'S+ MYTHIC',
+    title: 'Genesis Katana Prodigy',
+    lore: 'Forged in the fires of the Dojo. Unrivaled speed with a katana that cuts through market noise.',
+    rarity: 'MYTHIC',
     glowColor: '#FF2A5F',
-    badgeEmoji: '🗡️',
-    lore: 'Katana prodigy of the Eighth Rise. Turns discipline into unyielding momentum across the Dojo.',
     image: '/cards/0001.webp',
-    iconBg: 'rgba(255, 42, 95, 0.25)',
+    badgeEmoji: '⚔️',
+    iconBg: '#FF2A5F',
   },
   kaede: {
     id: 'kaede',
-    title: 'Kaede · Ink & Shadow',
-    series: 'GENESIS WAVE 1',
-    rarity: 'S TIER',
+    title: 'Ink & Shadow Operative',
+    lore: 'Master of stealth diplomacy. Moves silently between communities, leaving behind enduring impact.',
+    rarity: 'LEGENDARY',
     glowColor: '#8B5CF6',
-    badgeEmoji: '🥷',
-    lore: 'Covert infiltrator who writes history in shadows. Silent steps, absolute precision.',
     image: '/cards/0002.webp',
-    iconBg: 'rgba(139, 92, 246, 0.25)',
+    badgeEmoji: '🥷',
+    iconBg: '#8B5CF6',
   },
   hina: {
     id: 'hina',
-    title: 'Hina · Solar Sentinel',
-    series: 'GENESIS WAVE 1',
-    rarity: 'S TIER',
-    glowColor: '#F59E0B',
-    badgeEmoji: '🛡️',
-    lore: 'Kinetic barrier specialist. Anchors the Dojo training hall against all external distortion.',
+    title: 'Kinetic Shield Sentinel',
+    lore: 'Defends the community with unwavering loyalty. Constructs energetic barriers against volatility.',
+    rarity: 'EPIC',
+    glowColor: '#00E5FF',
     image: '/cards/0003.webp',
-    iconBg: 'rgba(245, 158, 11, 0.25)',
+    badgeEmoji: '🛡️',
+    iconBg: '#00E5FF',
   },
   yuki: {
     id: 'yuki',
-    title: 'Yuki · Frost Valkyrie',
-    series: 'GENESIS WAVE 1',
-    rarity: 'A TIER',
-    glowColor: '#00E5FF',
-    badgeEmoji: '❄️',
-    lore: 'Sub-zero frontline guardian. Glaciates high-frequency anomalies with absolute zero finality.',
+    title: 'Frost Archer Specialist',
+    lore: 'Perfection in long-range precision. Freezes state transitions and executes flawless strategic calls.',
+    rarity: 'RARE',
+    glowColor: '#38BDF8',
     image: '/cards/0004.webp',
-    iconBg: 'rgba(0, 229, 255, 0.25)',
+    badgeEmoji: '🏹',
+    iconBg: '#38BDF8',
   },
   aoi: {
     id: 'aoi',
-    title: 'Aoi · Cyber Ronin',
-    series: 'GENESIS WAVE 1',
-    rarity: 'A TIER',
-    glowColor: '#3B82F6',
-    badgeEmoji: '⚡',
-    lore: 'Masterless warrior bound only to the ledger. Roams the digital perimeter with dual blades.',
+    title: 'Cyber Ronin Grid Enforcer',
+    lore: 'Wanders the decentralized frontier upholding the code of honour. Pure decentralized discipline.',
+    rarity: 'LEGENDARY',
+    glowColor: '#F59E0B',
     image: '/cards/0005.webp',
-    iconBg: 'rgba(59, 130, 246, 0.25)',
+    badgeEmoji: '⚡',
+    iconBg: '#F59E0B',
   },
   sora: {
     id: 'sora',
-    title: 'Sora · Aether Weaver',
-    series: 'GENESIS WAVE 1',
-    rarity: 'B TIER',
-    glowColor: '#10B981',
-    badgeEmoji: '🌪️',
-    lore: 'Protocol mystic weaving high-dimensional currents into seamless creator broadcasts.',
+    title: 'Aether Protocol Weaver',
+    lore: 'Channels cosmic telemetry to weave liquid consensus across high-frequency chains.',
+    rarity: 'MYTHIC',
+    glowColor: '#EC4899',
     image: '/cards/0006.webp',
-    iconBg: 'rgba(16, 185, 129, 0.25)',
+    badgeEmoji: '🌌',
+    iconBg: '#EC4899',
   },
   ren: {
     id: 'ren',
-    title: 'Ren · Iron Vanguard',
-    series: 'GENESIS WAVE 1',
-    rarity: 'B TIER',
-    glowColor: '#EC4899',
-    badgeEmoji: '⚙️',
-    lore: 'Heavy armor bastion. The unyielding anvil upon which the Hazels movement is hammered.',
+    title: 'Blaze Blade Striker',
+    lore: 'An untamable flame in the heart of battle. Overwhelms obstacles through boundless intensity.',
+    rarity: 'EPIC',
+    glowColor: '#EF4444',
     image: '/cards/0007.webp',
-    iconBg: 'rgba(236, 72, 153, 0.25)',
+    badgeEmoji: '🔥',
+    iconBg: '#EF4444',
   },
   mai: {
     id: 'mai',
-    title: 'Mai · Blossom Assassin',
-    series: 'GENESIS WAVE 1',
-    rarity: 'C TIER',
-    glowColor: '#FF7597',
-    badgeEmoji: '🌸',
-    lore: 'Petal-storm skirmisher. Strikes through the noise like cherry blossoms on a spring wind.',
+    title: 'Petal Storm Skirmisher',
+    lore: 'Dances between adversarial currents with grace. Turns tempestuous market winds into artistic triumphs.',
+    rarity: 'RARE',
+    glowColor: '#10B981',
     image: '/cards/0008.webp',
-    iconBg: 'rgba(255, 117, 151, 0.25)',
+    badgeEmoji: '🌸',
+    iconBg: '#10B981',
   },
   rin: {
     id: 'rin',
-    title: 'Rin · Pulse Engineer',
-    series: 'GENESIS WAVE 1',
-    rarity: 'C TIER',
-    glowColor: '#A78BFA',
-    badgeEmoji: '🔮',
-    lore: 'YORAI ledger engineer. Translates creator energy into perpetual momentum.',
+    title: 'Thunder Claw Vanguard',
+    lore: 'Strikes like lightning with sub-second momentum. Leading the frontline charge of the Eighth Rise.',
+    rarity: 'LEGENDARY',
+    glowColor: '#EAB308',
     image: '/cards/0009.webp',
-    iconBg: 'rgba(167, 139, 250, 0.25)',
+    badgeEmoji: '⚡',
+    iconBg: '#EAB308',
   },
   kuro: {
     id: 'kuro',
-    title: 'Kuro · Eighth Rise OG',
-    series: 'GENESIS WAVE 1',
-    rarity: 'S+ MYTHIC',
-    glowColor: '#EF4444',
-    badgeEmoji: '👑',
-    lore: 'Legendary elder who stood before the torii gates when the first rise began.',
+    title: 'Shadow Veil Assassin',
+    lore: 'The unseen sentinel of the Dojo. Executes strategic moves before anyone notices the ledger shift.',
+    rarity: 'MYTHIC',
+    glowColor: '#6366F1',
     image: '/cards/0010.webp',
-    iconBg: 'rgba(239, 68, 68, 0.25)',
+    badgeEmoji: '🌑',
+    iconBg: '#6366F1',
   },
 };
 
 const ARCHETYPES_LIST = Object.values(HAZELS_ARCHETYPES);
 
 export const HazelsCards: React.FC = () => {
-  const [handle, setHandle] = useState('yournahian');
-  const [searchInput, setSearchInput] = useState('yournahian');
+  const [inputVal, setInputVal] = useState('');
   const [loading, setLoading] = useState(false);
   const [userData, setUserData] = useState<{
-    name: string;
-    avatar: string;
+    user: { handle: string; name: string; profile_image_url: string };
     totalImpressions: number;
-    postCount: number;
+    totalPosts: number;
   } | null>(null);
-
-  // Opening & Flip States
-  const [hasOpened, setHasOpened] = useState(false);
-  const [isFlipped, setIsFlipped] = useState(false);
-  const [openingStage, setOpeningStage] = useState<'idle' | 'charging' | 'revealed'>('idle');
   const [selectedArchetypeId, setSelectedArchetypeId] = useState<string>('rei');
+  const [isFlipped, setIsFlipped] = useState(false);
+  const [hasRevealed, setHasRevealed] = useState(false);
+  const [openingStage, setOpeningStage] = useState<'idle' | 'charging' | 'spinning' | 'revealed'>('idle');
+  const [isFlipping, setIsFlipping] = useState(false);
+  const [showFlash, setShowFlash] = useState(false);
+  const [downloading, setDownloading] = useState(false);
+  const [copiedLink, setCopiedLink] = useState(false);
 
-  // 3D Carousel Customizer Modal
-  const [showCarouselModal, setShowCarouselModal] = useState(false);
+  // 3D Carousel Customizer State
+  const [isCustomizerOpen, setIsCustomizerOpen] = useState(false);
   const [carouselIndex, setCarouselIndex] = useState(0);
 
-  // Copy Feedback
-  const [copiedLink, setCopiedLink] = useState(false);
-  const [exportingPNG, setExportingPNG] = useState(false);
-
-  // 3D Tilt Card Ref
+  // 3D tilt
   const cardRef = useRef<HTMLDivElement>(null);
+  const [tilt, setTilt] = useState({ x: 0, y: 0, glareX: 50, glareY: 50 });
 
-  // Auto-fetch profile data on load
+  const toggleFlip = (e?: React.MouseEvent) => {
+    if (e) e.stopPropagation();
+    if (openingStage === 'charging' || openingStage === 'spinning') return;
+    setIsFlipping(true);
+    setTilt({ x: 0, y: 0, glareX: 50, glareY: 50 });
+    setIsFlipped((prev) => !prev);
+    setTimeout(() => {
+      setIsFlipping(false);
+    }, 700);
+  };
+
   useEffect(() => {
-    fetchProfileData(handle);
-  }, []);
+    if (!isCustomizerOpen) return;
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'ArrowLeft') {
+        setCarouselIndex((prev) => (prev - 1 + ARCHETYPES_LIST.length) % ARCHETYPES_LIST.length);
+      } else if (e.key === 'ArrowRight') {
+        setCarouselIndex((prev) => (prev + 1) % ARCHETYPES_LIST.length);
+      } else if (e.key === 'Escape') {
+        setIsCustomizerOpen(false);
+      }
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [isCustomizerOpen]);
 
-  const fetchProfileData = async (userHandle: string) => {
+  const triggerOpeningSequence = (targetArchetypeId?: string) => {
+    if (targetArchetypeId) setSelectedArchetypeId(targetArchetypeId);
+    setIsFlipped(false);
+    setOpeningStage('charging');
+
+    setTimeout(() => {
+      setOpeningStage('spinning');
+
+      setTimeout(() => {
+        setIsFlipped(true);
+        setShowFlash(true);
+      }, 450);
+
+      setTimeout(() => {
+        setOpeningStage('revealed');
+        setHasRevealed(true);
+        setTimeout(() => setShowFlash(false), 700);
+
+        setTimeout(() => {
+          setOpeningStage('idle');
+        }, 600);
+      }, 900);
+    }, 550);
+  };
+
+  const fetchUserCard = async (targetHandle: string) => {
+    const clean = targetHandle.replace('@', '').trim();
+    if (!clean) return;
+
     setLoading(true);
-    const clean = userHandle.replace('@', '').trim();
     try {
       const res = await fetch(`/api/impressions?handle=${encodeURIComponent(clean)}`);
       const json = await res.json();
@@ -174,148 +208,115 @@ export const HazelsCards: React.FC = () => {
 
       if (json && json.ok) {
         setUserData({
-          name: json.profile?.name || clean,
-          avatar: json.profile?.avatar || `https://unavatar.io/x/${clean}`,
+          user: {
+            handle: json.username || clean,
+            name: json.profile?.name || clean,
+            profile_image_url: json.profile?.avatar || '',
+          },
           totalImpressions: json.total_impressions || 0,
-          postCount: json.post_count || 0,
+          totalPosts: json.post_count || 0,
         });
 
-        // Deterministic assignment
         const imps = json.total_impressions || 0;
-        if (imps >= 1000000) assignedArchetype = 'rei';
-        else if (imps >= 500000) assignedArchetype = 'kaede';
-        else if (imps >= 250000) assignedArchetype = 'hina';
-        else if (imps >= 100000) assignedArchetype = 'yuki';
-        else if (imps >= 50000) assignedArchetype = 'aoi';
-        else if (imps >= 20000) assignedArchetype = 'sora';
+        if (imps >= 100000) assignedArchetype = 'rei';
+        else if (imps >= 50000) assignedArchetype = 'kaede';
+        else if (imps >= 25000) assignedArchetype = 'hina';
+        else if (imps >= 10000) assignedArchetype = 'yuki';
+        else if (imps >= 5000) assignedArchetype = 'aoi';
+        else if (imps >= 2000) assignedArchetype = 'sora';
         else assignedArchetype = 'mai';
       } else {
         setUserData({
-          name: clean,
-          avatar: `https://unavatar.io/x/${clean}`,
-          totalImpressions: 12480,
-          postCount: 14,
+          user: { handle: clean, name: clean, profile_image_url: `https://unavatar.io/x/${clean}` },
+          totalImpressions: 0,
+          totalPosts: 0,
         });
         assignedArchetype = 'rei';
       }
 
       setSelectedArchetypeId(assignedArchetype);
       setCarouselIndex(ARCHETYPES_LIST.findIndex((a) => a.id === assignedArchetype));
+      triggerOpeningSequence(assignedArchetype);
     } catch {
       setUserData({
-        name: clean,
-        avatar: `https://unavatar.io/x/${clean}`,
-        totalImpressions: 12480,
-        postCount: 14,
+        user: { handle: clean, name: clean, profile_image_url: `https://unavatar.io/x/${clean}` },
+        totalImpressions: 0,
+        totalPosts: 0,
       });
-      setSelectedArchetypeId('rei');
+      triggerOpeningSequence('rei');
     } finally {
       setLoading(false);
     }
   };
 
-  const handleSearch = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!searchInput.trim()) return;
-    const clean = searchInput.replace('@', '').trim();
-    setHandle(clean);
-    fetchProfileData(clean);
-    setHasOpened(false);
-    setIsFlipped(false);
-    setOpeningStage('idle');
+  const handleCardClick = () => {
+    if (!hasRevealed) {
+      triggerOpeningSequence();
+    } else {
+      toggleFlip();
+    }
   };
 
-  // Cinematic Pack Opening Ceremony
-  const triggerOpenPack = () => {
-    if (openingStage !== 'idle') return;
-    setOpeningStage('charging');
-
-    setTimeout(() => {
-      setOpeningStage('revealed');
-      setHasOpened(true);
-      setIsFlipped(false);
-    }, 1800);
-  };
-
-  const handleReplay = () => {
-    setHasOpened(false);
-    setIsFlipped(false);
-    setOpeningStage('idle');
-    setTimeout(() => {
-      triggerOpenPack();
-    }, 150);
-  };
-
-  const toggleFlip = () => {
-    setIsFlipped((prev) => !prev);
-  };
-
-  // 3D Tilt calculations
   const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
-    if (!cardRef.current) return;
+    if (!cardRef.current || openingStage === 'charging' || openingStage === 'spinning') return;
     const rect = cardRef.current.getBoundingClientRect();
     const x = e.clientX - rect.left;
     const y = e.clientY - rect.top;
 
-    const centerX = rect.width / 2;
-    const centerY = rect.height / 2;
+    const rotX = ((y - rect.height / 2) / (rect.height / 2)) * -14;
+    const rotY = ((x - rect.width / 2) / (rect.width / 2)) * 14;
 
-    const rotateX = ((y - centerY) / centerY) * -12;
-    const rotateY = ((x - centerX) / centerX) * 12;
+    const glareX = (x / rect.width) * 100;
+    const glareY = (y / rect.height) * 100;
 
-    cardRef.current.style.transform = `perspective(1000px) rotateX(${rotateX}deg) rotateY(${rotateY}deg)`;
+    setTilt({ x: rotX, y: rotY, glareX, glareY });
   };
 
   const handleMouseLeave = () => {
-    if (!cardRef.current) return;
-    cardRef.current.style.transform = 'perspective(1000px) rotateX(0deg) rotateY(0deg)';
+    setTilt({ x: 0, y: 0, glareX: 50, glareY: 50 });
   };
 
   const archetype = HAZELS_ARCHETYPES[selectedArchetypeId] || HAZELS_ARCHETYPES.rei;
 
-  const handleEquipFromCarousel = (arch: CardArchetype) => {
-    setSelectedArchetypeId(arch.id);
-    setShowCarouselModal(false);
-    if (!hasOpened) {
-      setHasOpened(true);
-      setOpeningStage('revealed');
-      setIsFlipped(false);
-    }
-  };
-
-  const handleDownloadPNG = async () => {
-    if (!userData) return;
-    setExportingPNG(true);
+  const handleDownload = async () => {
+    setDownloading(true);
     try {
+      const displayHandle = userData?.user?.handle || inputVal.trim() || 'Contender';
+      const displayName = userData?.user?.name || displayHandle;
+      const avatarUrl = userData?.user?.profile_image_url || `https://unavatar.io/x/${displayHandle}`;
+
       const blob = await exportHazelsCardPNG({
-        handle,
-        avatarUrl: userData.avatar,
-        totalImpressions: userData.totalImpressions,
-        postCount: userData.postCount,
+        handle: displayHandle,
+        avatarUrl,
         archetypeId: archetype.id,
         archetypeTitle: archetype.title,
         archetypeLore: archetype.lore,
-        glowColor: archetype.glowColor,
         rarity: archetype.rarity,
+        glowColor: archetype.glowColor,
+        totalImpressions: userData?.totalImpressions || 0,
+        postCount: userData?.totalPosts || 0,
         image: archetype.image,
       });
 
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement('a');
-      a.href = url;
-      a.download = `${handle}-hazels-card.png`;
-      a.click();
-      URL.revokeObjectURL(url);
-    } catch (e) {
-      console.error(e);
+      if (blob) {
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `${displayHandle}-hazels-card.png`;
+        a.click();
+        URL.revokeObjectURL(url);
+      }
+    } catch (err) {
+      console.error(err);
     } finally {
-      setExportingPNG(false);
+      setDownloading(false);
     }
   };
 
   const handleShareToX = () => {
+    const displayHandle = userData?.user?.handle || inputVal.trim() || 'Contender';
     const text = encodeURIComponent(
-      `I forged my official @0xhazels Collectible Card: ${archetype.badgeEmoji} ${archetype.title} (${archetype.rarity})!\n\n⚔️ YORAI Impressions: ${(userData?.totalImpressions || 0).toLocaleString()}\n🔥 GTD Race Season 01\n\nForge your Hazels Card on @0xhazels Trace:`
+      `I forged my official Hazels Collectible Card: ${archetype.badgeEmoji} ${archetype.title} (${archetype.rarity})! ⚔️\n\nFall seven times, rise the eighth. 七転び八起き\nForge your Hazels Card on Hazels Trace:`
     );
     const url = encodeURIComponent(window.location.href);
     window.open(`https://twitter.com/intent/tweet?text=${text}&url=${url}`, '_blank');
@@ -327,158 +328,216 @@ export const HazelsCards: React.FC = () => {
     setTimeout(() => setCopiedLink(false), 2000);
   };
 
-  return (
-    <div className="monad-cards-stage animate-fade-in">
-      {/* Background Ambient Beams */}
-      <div className="spotlight-beam beam-left" />
-      <div className="spotlight-beam beam-right" />
+  const displayHandle = userData?.user?.handle || inputVal.trim() || 'Contender';
 
-      {/* Top Handle Search */}
-      <div className="cards-search-toolbar">
-        <form onSubmit={handleSearch} className="monad-search-form">
-          <div className="monad-input-wrapper">
+  const getAnimationClass = () => {
+    if (openingStage === 'charging') return 'card-is-charging';
+    if (openingStage === 'spinning') return 'card-is-spinning';
+    if (openingStage === 'revealed') return 'card-just-revealed';
+    if (isFlipping) return 'is-flipping-transition';
+    return '';
+  };
+
+  const handleEquipFromCarousel = (arch: CardArchetype) => {
+    setSelectedArchetypeId(arch.id);
+    setIsCustomizerOpen(false);
+    setShowFlash(true);
+    setTimeout(() => setShowFlash(false), 600);
+  };
+
+  return (
+    <div className="monad-style-stage animate-fade-in">
+      {/* Top Search Bar */}
+      <div className="monad-search-container">
+        <form
+          onSubmit={(e) => {
+            e.preventDefault();
+            if (inputVal.trim()) fetchUserCard(inputVal.trim());
+          }}
+          className="monad-search-form"
+        >
+          <div className="monad-input-pill">
             <span className="monad-input-prefix">@</span>
             <input
               type="text"
-              value={searchInput}
-              onChange={(e) => setSearchInput(e.target.value)}
+              value={inputVal}
+              onChange={(e) => setInputVal(e.target.value)}
               placeholder="Enter your X username to forge card"
-              className="monad-handle-input"
+              className="monad-input-field"
+              autoFocus
             />
           </div>
-          <button type="submit" disabled={loading} className="monad-forge-btn">
-            <Sparkles style={{ width: '16px', height: '16px' }} />
-            <span>{loading ? 'Auditing GTD Stats...' : 'Forge & Reveal Card'}</span>
+          <button
+            type="submit"
+            disabled={loading || !inputVal.trim()}
+            className="monad-btn-generate"
+            style={{ background: 'linear-gradient(135deg, #FF2A5F, #8B5CF6)' }}
+          >
+            {loading ? 'Forging...' : '⚡ Forge & Reveal Card'}
           </button>
         </form>
       </div>
 
-      {/* Main 2-Column Stage */}
-      <div className="monad-showcase-container">
-        {/* Left Column: Interactive 3D Card */}
-        <div className="monad-card-interactive-col">
+      {/* Main 3D Card Stage */}
+      <div className="monad-stage-center">
+        {/* Card and Action Side Buttons Wrapper */}
+        <div className="monad-card-and-actions">
+          {/* Ambient Spotlight Beams */}
+          <div className={`card-spotlight-backdrop ${openingStage === 'charging' ? 'charging' : ''}`}>
+            <div className="card-beam" style={{ background: 'linear-gradient(180deg, rgba(255, 42, 95, 0.4), transparent)' }} />
+            <div className="card-beam" style={{ background: 'linear-gradient(180deg, rgba(139, 92, 246, 0.4), transparent)' }} />
+            <div className="card-beam" style={{ background: 'linear-gradient(180deg, rgba(255, 42, 95, 0.4), transparent)' }} />
+          </div>
+
+          {/* Flash burst overlay on reveal */}
+          {showFlash && <div className="card-flash-burst" />}
+
+          {/* Card Canvas with 3D Perspective */}
           <div
-            className={`monad-card-3d-wrapper ${openingStage === 'charging' ? 'is-charging-energy' : ''}`}
+            className="monad-perspective-wrapper"
             onMouseMove={handleMouseMove}
             onMouseLeave={handleMouseLeave}
-            ref={cardRef}
           >
-            {/* Flippable Card Inner */}
-            <div className={`monad-card-flipper ${isFlipped || !hasOpened ? 'is-flipped' : ''}`}>
+            <div
+              ref={cardRef}
+              onClick={handleCardClick}
+              className={`monad-card-3d ${getAnimationClass()}`}
+              style={{
+                transform: openingStage === 'spinning' || openingStage === 'charging'
+                  ? undefined
+                  : `rotateX(${tilt.x}deg) rotateY(${isFlipped ? tilt.y : 180 - tilt.y}deg)`,
+                boxShadow: isFlipped
+                  ? `0 0 55px ${archetype.glowColor}66, 0 0 110px ${archetype.glowColor}33`
+                  : '0 0 50px rgba(255, 42, 95, 0.5), 0 0 100px rgba(139, 92, 246, 0.3)',
+              }}
+            >
               {/* CARD FRONT */}
               <div
                 className="monad-card-face monad-card-front"
                 style={{
                   border: `2px solid ${archetype.glowColor}`,
-                  boxShadow: `0 0 45px ${archetype.glowColor}55, 0 20px 40px rgba(0,0,0,0.8)`,
                 }}
               >
-                {/* Header: Series & Brand */}
-                <div className="monad-card-header-bar">
-                  <span className="monad-header-label">HAZELS CARDS</span>
-                  <span className="monad-header-badge" style={{ color: archetype.glowColor }}>
-                    GTD SERIES 1 // 七転び八起き
-                  </span>
-                </div>
+                {/* Holographic dynamic sheen */}
+                <div
+                  className="monad-holographic-sheen"
+                  style={{
+                    background: `radial-gradient(circle at ${tilt.glareX}% ${tilt.glareY}%, rgba(255,255,255,0.85) 0%, rgba(255,255,255,0) 65%)`,
+                  }}
+                />
 
-                {/* Character Anime Illustration */}
-                <div className="monad-character-portal">
-                  <div
-                    className="monad-image-glow-ring"
-                    style={{
-                      border: `2px solid ${archetype.glowColor}`,
-                      background: `linear-gradient(135deg, ${archetype.glowColor}, #8B5CF6)`,
-                    }}
-                  />
-                  <div className="monad-character-img-frame">
-                    <img
-                      src={archetype.image}
-                      alt={archetype.title}
-                      className="monad-character-img"
-                    />
-                  </div>
-                </div>
-
-                {/* User Nameplate */}
-                <div className="monad-user-nameplate">
-                  <div className="monad-nameplate-left">
-                    <div
-                      className="monad-user-avatar-wrap"
-                      style={{ borderColor: archetype.glowColor }}
-                    >
-                      {userData?.avatar ? (
-                        <img src={userData.avatar} alt={handle} className="monad-user-avatar" />
-                      ) : (
-                        <div className="monad-user-avatar-fallback">{handle.slice(0, 2).toUpperCase()}</div>
-                      )}
-                    </div>
-                    <div className="monad-nameplate-text">
-                      <div className="monad-nameplate-handle">@{handle}</div>
-                      <div className="monad-nameplate-sub" style={{ color: archetype.glowColor }}>
-                        VERIFIED GTD CONTENDER
+                {/* Top Nameplate Box with User's X Avatar */}
+                <div className="monad-card-nameplate">
+                  <div className="monad-nameplate-user">
+                    {userData?.user?.profile_image_url ? (
+                      <img
+                        src={userData.user.profile_image_url}
+                        alt={displayHandle}
+                        className="monad-user-dp"
+                        onError={(e) => {
+                          (e.currentTarget as HTMLElement).style.display = 'none';
+                        }}
+                      />
+                    ) : (
+                      <div
+                        className="monad-user-dp-placeholder"
+                        style={{
+                          background: `linear-gradient(135deg, ${archetype.glowColor}, #8B5CF6)`,
+                        }}
+                      >
+                        {displayHandle.replace('@', '').charAt(0).toUpperCase()}
                       </div>
-                    </div>
+                    )}
+                    <span className="monad-nameplate-text">
+                      @{displayHandle}
+                    </span>
                   </div>
-                  <div className="monad-nameplate-star" style={{ color: archetype.glowColor }}>
+                  <div
+                    className="monad-nameplate-star"
+                    style={{ color: archetype.glowColor }}
+                  >
                     ★
                   </div>
                 </div>
 
-                {/* Trait & Lore Box */}
-                <div className="monad-trait-box">
-                  <div className="monad-trait-top">
-                    <div
-                      className="monad-trait-icon-wrap"
-                      style={{ background: archetype.iconBg }}
-                    >
-                      <span className="monad-trait-icon">{archetype.badgeEmoji}</span>
+                {/* Character Artwork Frame */}
+                <div className="monad-art-frame">
+                  <img
+                    src={archetype.image}
+                    alt={archetype.title}
+                    className="monad-art-image"
+                  />
+                </div>
+
+                {/* Trait Box */}
+                <div className="monad-trait-card">
+                  <div
+                    className="monad-trait-icon-box"
+                    style={{ background: archetype.iconBg }}
+                  >
+                    <span className="monad-trait-icon">{archetype.badgeEmoji}</span>
+                  </div>
+                  <div className="monad-trait-content">
+                    <div className="monad-trait-title" style={{ color: archetype.glowColor }}>
+                      {archetype.title}
                     </div>
-                    <div className="monad-trait-title-meta">
-                      <div className="monad-trait-name" style={{ color: archetype.glowColor }}>
-                        {archetype.title}
-                      </div>
-                      <div className="monad-trait-desc">
-                        {archetype.lore}
-                      </div>
-                    </div>
+                    <p className="monad-trait-lore">
+                      {archetype.lore}
+                    </p>
                   </div>
                 </div>
 
-                {/* Card Footer: Rarity & Stats */}
+                {/* Bottom Footer: Brand & Wave Stamp */}
                 <div className="monad-card-footer">
-                  <div className="monad-rarity-chip" style={{ background: archetype.glowColor, color: '#000000', fontWeight: 900 }}>
-                    {archetype.rarity}
-                  </div>
-                  <div className="monad-wave-badge">
-                    <span>EIGHTH RISE</span>
+                  <span className="monad-footer-brand" style={{ color: '#FF7597' }}>Hazels Cards</span>
+                  <div className="monad-wave-badge" style={{ background: 'rgba(255, 42, 95, 0.2)', border: '1px solid rgba(255, 42, 95, 0.4)' }}>
+                    <span style={{ color: '#FF7597' }}>GENESIS 1</span>
                   </div>
                 </div>
               </div>
 
-              {/* CARD BACK (Unrevealed Holographic Pack Back) */}
+              {/* CARD BACK */}
               <div
                 className="monad-card-face monad-card-back"
                 style={{
                   border: '2px solid rgba(255, 42, 95, 0.7)',
                   boxShadow: '0 0 50px rgba(255, 42, 95, 0.5)',
+                  background: 'linear-gradient(135deg, #090B14 0%, #1A0710 100%)',
                 }}
               >
                 <div className="monad-back-header">
-                  <span>HAZELS STUDIO</span>
-                  <span>GTD PACK 1</span>
+                  <span style={{ color: '#FF7597' }}>HAZELS CARDS</span>
+                  <span style={{ color: '#8B5CF6' }}>SERIES 1</span>
                 </div>
 
                 <div className="monad-back-center-logo">
-                  <div className="monad-back-emblem" style={{ borderColor: 'rgba(255, 42, 95, 0.4)', background: 'rgba(255, 42, 95, 0.1)', boxShadow: '0 0 35px rgba(255, 42, 95, 0.5)' }}>
-                    <HazelsIcon size={56} />
+                  <div
+                    style={{
+                      width: '64px',
+                      height: '64px',
+                      borderRadius: '50%',
+                      background: 'rgba(255, 42, 95, 0.1)',
+                      border: '2px solid #FF2A5F',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      margin: '0 auto 12px auto',
+                      boxShadow: '0 0 24px rgba(255, 42, 95, 0.4)',
+                    }}
+                  >
+                    <img
+                      src="/brand/mark.png"
+                      alt="Hazels"
+                      style={{ width: '60%', height: '60%', objectFit: 'contain' }}
+                    />
                   </div>
-                  <div className="monad-back-title" style={{ letterSpacing: '0.05em' }}>studio.hazels.io</div>
+                  <div className="monad-back-title" style={{ color: '#FFFFFF' }}>studio.hazels.io</div>
                   <div className="monad-back-subtitle" style={{ color: '#FF7597' }}>七転び八起き // EIGHTH RISE</div>
                 </div>
 
-                <div className="monad-back-cta">
+                <div className="monad-back-cta" style={{ color: '#FF2A5F' }}>
                   <Sparkles style={{ width: '16px', height: '16px', color: '#FF2A5F' }} />
-                  <span>{openingStage === 'charging' ? 'CHARGING YORAI ENERGY...' : 'CLICK TO REVEAL CARD'}</span>
+                  <span>{openingStage === 'charging' ? 'CHARGING ENERGY...' : 'CLICK TO REVEAL CARD'}</span>
                 </div>
               </div>
             </div>
@@ -489,20 +548,36 @@ export const HazelsCards: React.FC = () => {
             <button
               type="button"
               onClick={toggleFlip}
-              title={isFlipped ? 'Flip to Front' : 'Flip to Back'}
+              title={isFlipped ? 'Flip to Card Back' : 'Flip to Card Front'}
               className={`monad-action-circle ${!isFlipped ? 'active-flip' : ''}`}
             >
-              <RefreshCw style={{ width: '18px', height: '18px' }} />
+              <RefreshCw
+                style={{
+                  width: '18px',
+                  height: '18px',
+                  transform: !isFlipped ? 'rotate(180deg)' : 'none',
+                  transition: 'transform 0.4s ease',
+                }}
+              />
             </button>
 
             <button
               type="button"
-              onClick={handleDownloadPNG}
-              disabled={exportingPNG}
+              onClick={handleDownload}
+              disabled={downloading}
               title="Download Card PNG"
               className="monad-action-circle"
             >
               <Download style={{ width: '18px', height: '18px' }} />
+            </button>
+
+            <button
+              type="button"
+              onClick={handleShareToX}
+              title="Share to X"
+              className="monad-action-circle"
+            >
+              <Share2 style={{ width: '18px', height: '18px' }} />
             </button>
 
             <button
@@ -512,202 +587,104 @@ export const HazelsCards: React.FC = () => {
               className="monad-action-circle"
             >
               {copiedLink ? (
-                <Check style={{ width: '18px', height: '18px', color: '#10B981' }} />
+                <Check style={{ width: '18px', height: '18px', color: '#22c55e' }} />
               ) : (
                 <Copy style={{ width: '18px', height: '18px' }} />
               )}
             </button>
-          </div>
-        </div>
 
-        {/* Right Column: Narrative Hero Showcase & Action Bar */}
-        <div className="monad-narrative-col">
-          <div className="hero-narrative-box">
-            <div className="narrative-tag-chip" style={{ color: '#FF2A5F', borderColor: 'rgba(255, 42, 95, 0.35)', background: 'rgba(255, 42, 95, 0.1)' }}>
-              <Sparkles style={{ width: '14px', height: '14px' }} />
-              <span>{hasOpened ? 'EIGHTH RISE // VERIFIED WARRIOR' : 'GENESIS HAZELS PACK • UNREVEALED'}</span>
-            </div>
-
-            <h1 className="narrative-main-title">
-              HAZELS <span className="gradient-text-amber" style={{ background: 'linear-gradient(135deg, #FF2A5F, #FF7597)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>CARDS</span>
-            </h1>
-
-            <div className="narrative-wave-divider">
-              <span className="wave-line" />
-              <span className="wave-text" style={{ color: '#8B5CF6' }}>GTD RACE — SEASON 01</span>
-              <span className="wave-line" />
-            </div>
-
-            <p className="narrative-quote">
-              “Fall seven times, rise the eighth. Forged in the Dojo for the Hazels Community.”
-            </p>
-
-            <div className="narrative-forged-tag">
-              Forged for <span className="forged-handle" style={{ color: '#FF7597' }}>@{handle}</span>
-            </div>
-
-            {/* CTAs */}
-            <div className="narrative-actions-cluster">
-              {!hasOpened ? (
-                <button
-                  type="button"
-                  onClick={triggerOpenPack}
-                  disabled={openingStage === 'charging'}
-                  className="monad-claim-button"
-                  style={{ background: 'linear-gradient(135deg, #FF2A5F, #8B5CF6)' }}
-                >
-                  <Sparkles style={{ width: '16px', height: '16px' }} />
-                  <span>{openingStage === 'charging' ? 'Synthesizing Aura...' : '⚡ Open & Reveal Card ⚡'}</span>
-                </button>
-              ) : (
-                <button
-                  type="button"
-                  onClick={handleShareToX}
-                  className="monad-claim-button"
-                  style={{ background: 'linear-gradient(135deg, #FF2A5F, #8B5CF6)' }}
-                >
-                  <Share2 style={{ width: '16px', height: '16px' }} />
-                  <span>Claim & Share to X</span>
-                </button>
-              )}
-
-              <button
-                type="button"
-                onClick={() => setShowCarouselModal(true)}
-                className="choose-yours-btn"
-                style={{ borderColor: 'rgba(255, 42, 95, 0.4)', color: '#FF7597' }}
-              >
-                <Palette style={{ width: '16px', height: '16px' }} />
-                <span>Choose Yours ({ARCHETYPES_LIST.length})</span>
-              </button>
-
-              {hasOpened && (
-                <button
-                  type="button"
-                  onClick={handleReplay}
-                  className="choose-yours-btn"
-                  title="Replay Opening Ceremony"
-                >
-                  <RefreshCw style={{ width: '16px', height: '16px' }} />
-                  <span>Replay</span>
-                </button>
-              )}
-            </div>
+            <button
+              type="button"
+              onClick={() => setIsCustomizerOpen(true)}
+              title="Browse Characters"
+              className="monad-action-circle"
+              style={{
+                borderColor: 'rgba(255, 42, 95, 0.4)',
+                background: 'rgba(255, 42, 95, 0.15)',
+              }}
+            >
+              <Palette style={{ width: '18px', height: '18px', color: '#FF2A5F' }} />
+            </button>
           </div>
         </div>
       </div>
 
-      {/* 3D Archetype Carousel Modal */}
-      {showCarouselModal && (
-        <div className="carousel-modal-overlay animate-fade-in">
-          <div className="carousel-modal-container">
-            <button
-              onClick={() => setShowCarouselModal(false)}
-              className="carousel-close-btn"
-              title="Close modal"
-            >
-              <X style={{ width: '20px', height: '20px' }} />
-            </button>
-
-            <div className="carousel-header">
-              <h2 className="carousel-title">CHOOSE YOURS</h2>
-              <div className="carousel-subtitle" style={{ color: '#FF7597' }}>
-                3D ARCHETYPE CAROUSEL // 10 GENESIS HAZELS WARRIORS
+      {/* 3D Carousel Customizer Modal */}
+      {isCustomizerOpen && (
+        <div className="carousel-modal-overlay" onClick={() => setIsCustomizerOpen(false)}>
+          <div className="carousel-modal-content" onClick={(e) => e.stopPropagation()}>
+            <div className="carousel-modal-header">
+              <div className="carousel-header-title">
+                <h3>Choose Character Archetype</h3>
+                <span className="carousel-counter">
+                  {carouselIndex + 1} / {ARCHETYPES_LIST.length}
+                </span>
               </div>
+              <button
+                type="button"
+                className="carousel-close-btn"
+                onClick={() => setIsCustomizerOpen(false)}
+              >
+                <X style={{ width: '20px', height: '20px' }} />
+              </button>
             </div>
 
-            <div className="carousel-stage">
+            <div className="carousel-viewport">
               <button
+                type="button"
+                className="carousel-nav-btn prev"
                 onClick={() =>
                   setCarouselIndex((prev) => (prev - 1 + ARCHETYPES_LIST.length) % ARCHETYPES_LIST.length)
                 }
-                className="carousel-nav-btn left"
-                title="Previous Archetype"
               >
                 <ChevronLeft style={{ width: '24px', height: '24px' }} />
               </button>
 
-              <div className="carousel-cards-deck">
+              <div className="carousel-3d-stage">
                 {ARCHETYPES_LIST.map((arch, idx) => {
-                  const offset = idx - carouselIndex;
-                  const absOffset = Math.abs(offset);
-                  if (absOffset > 2) return null;
+                  const offset = (idx - carouselIndex + ARCHETYPES_LIST.length) % ARCHETYPES_LIST.length;
+                  let normalizedOffset = offset;
+                  if (normalizedOffset > ARCHETYPES_LIST.length / 2) {
+                    normalizedOffset -= ARCHETYPES_LIST.length;
+                  }
 
-                  const translateX = offset * 180;
-                  const translateZ = -absOffset * 100;
-                  const rotateY = offset * -20;
-                  const opacity = 1 - absOffset * 0.3;
-                  const isSelected = selectedArchetypeId === arch.id;
+                  const isCenter = normalizedOffset === 0;
+                  const isVisible = Math.abs(normalizedOffset) <= 2;
+
+                  if (!isVisible) return null;
+
+                  const translateX = normalizedOffset * 180;
+                  const translateZ = -Math.abs(normalizedOffset) * 120;
+                  const rotateY = -normalizedOffset * 25;
+                  const opacity = 1 - Math.abs(normalizedOffset) * 0.35;
 
                   return (
                     <div
                       key={arch.id}
-                      onClick={() => setCarouselIndex(idx)}
-                      className={`carousel-card-item ${idx === carouselIndex ? 'active-center' : ''}`}
+                      className={`carousel-slide ${isCenter ? 'active' : ''}`}
                       style={{
                         transform: `translateX(${translateX}px) translateZ(${translateZ}px) rotateY(${rotateY}deg)`,
                         opacity,
-                        zIndex: 10 - absOffset,
-                        borderColor: absOffset === 0 ? arch.glowColor : 'rgba(255,255,255,0.15)',
-                        boxShadow:
-                          absOffset === 0
-                            ? `0 0 50px ${arch.glowColor}88, 0 0 100px ${arch.glowColor}44`
-                            : 'none',
+                        zIndex: 10 - Math.abs(normalizedOffset),
+                        borderColor: arch.glowColor,
+                      }}
+                      onClick={() => {
+                        if (isCenter) {
+                          handleEquipFromCarousel(arch);
+                        } else {
+                          setCarouselIndex(idx);
+                        }
                       }}
                     >
-                      {/* Card Content */}
-                      <div className="monad-card-header-bar">
-                        <span className="monad-header-label">HAZELS</span>
-                        <span className="monad-header-badge" style={{ color: arch.glowColor }}>
-                          {arch.series}
-                        </span>
+                      <div className="slide-rarity-chip" style={{ background: arch.glowColor, color: '#010101' }}>
+                        {arch.rarity}
                       </div>
-
-                      <div className="monad-character-portal" style={{ margin: '8px 0' }}>
-                        <div
-                          className="monad-image-glow-ring"
-                          style={{
-                            border: `2px solid ${arch.glowColor}`,
-                            background: `linear-gradient(135deg, ${arch.glowColor}, #8B5CF6)`,
-                          }}
-                        />
-                        <div className="monad-character-img-frame" style={{ width: '130px', height: '130px' }}>
-                          <img
-                            src={arch.image}
-                            alt={arch.title}
-                            className="monad-character-img"
-                          />
+                      <img src={arch.image} alt={arch.title} className="slide-card-img" />
+                      <div className="slide-meta">
+                        <div className="slide-title" style={{ color: arch.glowColor }}>
+                          {arch.badgeEmoji} {arch.title}
                         </div>
-                      </div>
-
-                      <div className="monad-trait-box" style={{ padding: '8px' }}>
-                        <div className="monad-trait-top">
-                          <div
-                            className="monad-trait-icon-wrap"
-                            style={{ width: '32px', height: '32px', background: arch.iconBg }}
-                          >
-                            <span className="monad-trait-icon" style={{ fontSize: '16px' }}>{arch.badgeEmoji}</span>
-                          </div>
-                          <div className="monad-trait-title-meta">
-                            <div className="monad-trait-name" style={{ color: arch.glowColor, fontSize: '13px' }}>
-                              {arch.title}
-                            </div>
-                            <div className="monad-trait-desc" style={{ fontSize: '11px', WebkitLineClamp: 2 }}>
-                              {arch.lore}
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-
-                      <div className="monad-card-footer" style={{ marginTop: 'auto' }}>
-                        <div className="monad-rarity-chip" style={{ background: arch.glowColor, color: '#000', fontWeight: 900, fontSize: '10px' }}>
-                          {arch.rarity}
-                        </div>
-                        {isSelected && (
-                          <span style={{ fontSize: '10px', color: '#10B981', fontFamily: 'var(--font-mono)', fontWeight: 700 }}>
-                            EQUIPPED ✓
-                          </span>
-                        )}
+                        <div className="slide-lore">{arch.lore}</div>
                       </div>
                     </div>
                   );
@@ -715,37 +692,24 @@ export const HazelsCards: React.FC = () => {
               </div>
 
               <button
-                onClick={() => setCarouselIndex((prev) => (prev + 1) % ARCHETYPES_LIST.length)}
-                className="carousel-nav-btn right"
-                title="Next Archetype"
+                type="button"
+                className="carousel-nav-btn next"
+                onClick={() =>
+                  setCarouselIndex((prev) => (prev + 1) % ARCHETYPES_LIST.length)
+                }
               >
                 <ChevronRight style={{ width: '24px', height: '24px' }} />
               </button>
             </div>
 
-            {/* Dots */}
-            <div className="carousel-dots-row">
-              {ARCHETYPES_LIST.map((_, dotIdx) => (
-                <button
-                  key={dotIdx}
-                  onClick={() => setCarouselIndex(dotIdx)}
-                  className={`carousel-dot ${dotIdx === carouselIndex ? 'active' : ''}`}
-                />
-              ))}
-            </div>
-
-            {/* Equip Button */}
-            <div className="carousel-footer-action">
+            <div className="carousel-modal-footer">
               <button
-                onClick={() => handleEquipFromCarousel(ARCHETYPES_LIST[carouselIndex])}
+                type="button"
                 className="carousel-equip-btn"
-                style={{
-                  background: `linear-gradient(135deg, ${ARCHETYPES_LIST[carouselIndex].glowColor}, #8B5CF6)`,
-                  boxShadow: `0 0 35px ${ARCHETYPES_LIST[carouselIndex].glowColor}99`,
-                }}
+                style={{ background: 'linear-gradient(135deg, #FF2A5F, #8B5CF6)' }}
+                onClick={() => handleEquipFromCarousel(ARCHETYPES_LIST[carouselIndex])}
               >
-                <span>{ARCHETYPES_LIST[carouselIndex].badgeEmoji}</span>
-                <span>Equip {ARCHETYPES_LIST[carouselIndex].title}</span>
+                Equip {ARCHETYPES_LIST[carouselIndex].title}
               </button>
             </div>
           </div>

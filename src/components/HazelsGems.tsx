@@ -1,213 +1,214 @@
-import React, { useState } from 'react';
-import { Trophy, TrendingUp, Sparkles, ExternalLink, Search } from 'lucide-react';
-import { TierBadge } from './TierBadge';
+'use client';
 
-interface GemLeader {
-  rank: number;
-  handle: string;
+import React, { useEffect, useState } from 'react';
+import { Sparkles, ExternalLink, Search } from 'lucide-react';
+
+interface GemContributor {
   name: string;
+  handle: string;
   avatar: string;
-  points: number;
-  tier: string;
-  role: string;
+  banner?: string;
+  bio: string;
+  followers: number;
+  following: number;
+  joined: string;
+  hazels_score: string;
+  verified: boolean;
 }
 
-const DEFAULT_LEADERS: GemLeader[] = [
-  {
-    rank: 1,
-    handle: 'rei_hzl',
-    name: 'Rei',
-    avatar: '/cards/0001.webp',
-    points: 124800,
-    tier: 'TIER S+',
-    role: 'Genesis Katana Prodigy',
-  },
-  {
-    rank: 2,
-    handle: 'kaede_ink',
-    name: 'Kaede',
-    avatar: '/cards/0002.webp',
-    points: 119050,
-    tier: 'TIER S',
-    role: 'Ink & Shadow Operative',
-  },
-  {
-    rank: 3,
-    handle: 'hina_frames',
-    name: 'Hina',
-    avatar: '/cards/0003.webp',
-    points: 103200,
-    tier: 'TIER S',
-    role: 'Kinetic Shield Sentinel',
-  },
-  {
-    rank: 4,
-    handle: 'yournahian',
-    name: 'Nahian',
-    avatar: 'https://unavatar.io/x/yournahian',
-    points: 98450,
-    tier: 'TIER A',
-    role: 'Eighth Rise Contender',
-  },
-  {
-    rank: 5,
-    handle: '0xhazels',
-    name: 'Hazels Studio',
-    avatar: '/brand/mark.png',
-    points: 540000,
-    tier: 'TIER S+',
-    role: 'Official Headquarters',
-  },
-  {
-    rank: 6,
-    handle: 'aoi_grid',
-    name: 'Aoi',
-    avatar: '/cards/0005.webp',
-    points: 84200,
-    tier: 'TIER A',
-    role: 'Cyber Ronin Grid Enforcer',
-  },
-  {
-    rank: 7,
-    handle: 'sora_weaves',
-    name: 'Sora',
-    avatar: '/cards/0006.webp',
-    points: 72100,
-    tier: 'TIER B',
-    role: 'Aether Protocol Weaver',
-  },
-  {
-    rank: 8,
-    handle: 'mai_blossom',
-    name: 'Mai',
-    avatar: '/cards/0008.webp',
-    points: 59300,
-    tier: 'TIER C',
-    role: 'Petal Storm Skirmisher',
-  },
-];
+function formatStatNumber(num: number): string {
+  if (num >= 1000000) return `${(num / 1000000).toFixed(1)}M`;
+  if (num >= 1000) return `${(num / 1000).toFixed(1)}K`;
+  return num.toLocaleString();
+}
 
 export const HazelsGems: React.FC = () => {
-  const [filter, setFilter] = useState('');
+  const [gems, setGems] = useState<GemContributor[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [search, setSearch] = useState('');
 
-  const filtered = DEFAULT_LEADERS.filter(
-    (l) =>
-      l.handle.toLowerCase().includes(filter.toLowerCase()) ||
-      l.name.toLowerCase().includes(filter.toLowerCase()) ||
-      l.role.toLowerCase().includes(filter.toLowerCase())
+  useEffect(() => {
+    fetch('/api/gems')
+      .then((res) => res.json())
+      .then((data) => {
+        if (data.ok && (data.projects || data.gems)) {
+          setGems(data.projects || data.gems);
+        }
+      })
+      .catch((err) => console.error(err))
+      .finally(() => setLoading(false));
+  }, []);
+
+  const filtered = gems.filter(
+    (g) =>
+      g.name.toLowerCase().includes(search.toLowerCase()) ||
+      g.handle.toLowerCase().includes(search.toLowerCase()) ||
+      g.bio.toLowerCase().includes(search.toLowerCase())
   );
 
   return (
-    <div className="feature-view-container animate-fade-in">
-      <div className="feature-header-wrap">
+    <div style={{ width: '100%', maxWidth: '560px', margin: '0 auto', display: 'flex', flexDirection: 'column' }}>
+      <div style={{ marginBottom: '24px', textAlign: 'center' }}>
         <div
           className="feature-pill-badge"
           style={{
             borderColor: 'rgba(255, 42, 95, 0.4)',
             color: '#FF7597',
             background: 'rgba(255, 42, 95, 0.08)',
+            display: 'inline-flex',
+            alignItems: 'center',
+            gap: '8px',
+            padding: '6px 14px',
+            borderRadius: '9999px',
+            border: '1px solid rgba(255, 42, 95, 0.3)',
+            marginBottom: '16px',
+            fontSize: '11px',
+            fontWeight: 700,
+            letterSpacing: '0.08em',
           }}
         >
-          <Trophy style={{ width: '14px', height: '14px' }} />
+          <span className="card-wave-dot" style={{ width: '6px', height: '6px', borderRadius: '50%', background: '#FF2A5F', boxShadow: '0 0 10px #FF2A5F' }} />
           <span>GTD RACE LEADERBOARD // 位</span>
         </div>
-        <h2 className="feature-title">
-          Hazels <span className="gradient-text-amber" style={{ background: 'linear-gradient(135deg, #FF2A5F, #8B5CF6)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>Gems</span>
-        </h2>
-        <p className="feature-desc">
-          Top ecosystem creators, artists, and contenders in the Hazels Dojo ranked by verified YORAI points and GTD contributions.
-        </p>
 
-        {/* Filter Input */}
-        <div className="monad-input-wrapper" style={{ maxWidth: '420px', marginTop: '20px' }}>
-          <Search style={{ width: '16px', height: '16px', color: '#FF7597', marginLeft: '12px' }} />
+        <h2 style={{ fontFamily: 'var(--font-display, sans-serif)', color: '#ffffff', fontSize: '32px', fontWeight: '800', letterSpacing: '-0.02em', margin: '0 0 8px 0' }}>
+          Hazels <span style={{ background: 'linear-gradient(135deg, #FF2A5F, #FF7597)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>Gems</span>
+        </h2>
+        <p style={{ color: 'var(--arc-text-muted, #94A3B8)', fontSize: '14px', margin: '0 auto', maxWidth: '480px', lineHeight: 1.5 }}>
+          Top ecosystem voices, official channels, and builders across Hazels Studio.
+        </p>
+      </div>
+
+      {/* Full-width Search Bar */}
+      <div style={{ width: '100%', marginBottom: '20px' }}>
+        <div style={{ position: 'relative', width: '100%' }}>
+          <Search style={{ position: 'absolute', left: '18px', top: '50%', transform: 'translateY(-50%)', width: '18px', height: '18px', color: 'var(--arc-text-muted, #94A3B8)' }} />
           <input
             type="text"
-            value={filter}
-            onChange={(e) => setFilter(e.target.value)}
-            placeholder="Search contender, handle, or role..."
-            className="monad-handle-input"
-            style={{ paddingLeft: '8px' }}
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            placeholder="Search ecosystem entities..."
+            style={{
+              width: '100%',
+              borderRadius: '9999px',
+              background: 'rgba(14, 16, 24, 0.85)',
+              backdropFilter: 'blur(16px)',
+              border: '1px solid rgba(255, 42, 95, 0.25)',
+              padding: '14px 20px 14px 48px',
+              fontSize: '14px',
+              color: '#ffffff',
+              outline: 'none',
+              boxShadow: '0 10px 30px rgba(0,0,0,0.4)',
+            }}
           />
         </div>
       </div>
 
-      {/* Leaderboard Table */}
-      <div className="radar-rpc-card" style={{ marginTop: '24px', padding: '0', overflow: 'hidden' }}>
-        <div style={{ display: 'flex', flexDirection: 'column' }}>
-          {filtered.map((leader, i) => (
+      {loading ? (
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '60px 0' }}>
+          <div
+            style={{
+              width: '36px',
+              height: '36px',
+              border: '3px solid rgba(255, 42, 95, 0.2)',
+              borderTopColor: '#FF2A5F',
+              borderRadius: '50%',
+              animation: 'spin 1s linear infinite',
+            }}
+          />
+        </div>
+      ) : (
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
+          {filtered.map((gem) => (
             <div
-              key={leader.handle}
+              key={gem.handle}
               style={{
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'space-between',
-                padding: '16px 20px',
-                borderBottom: i === filtered.length - 1 ? 'none' : '1px solid rgba(255,255,255,0.06)',
-                background: leader.rank <= 3 ? 'rgba(255, 42, 95, 0.03)' : 'transparent',
-                transition: 'background 0.2s',
+                background: 'rgba(12, 16, 26, 0.88)',
+                backdropFilter: 'blur(20px)',
+                borderRadius: '20px',
+                overflow: 'hidden',
+                border: '1px solid rgba(255, 42, 95, 0.25)',
+                boxShadow: '0 12px 36px rgba(0,0,0,0.5)',
               }}
             >
-              <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
-                <span
-                  style={{
-                    fontFamily: 'var(--font-mono)',
-                    fontSize: '14px',
-                    fontWeight: 800,
-                    color: leader.rank === 1 ? '#FF2A5F' : leader.rank === 2 ? '#8B5CF6' : leader.rank === 3 ? '#F59E0B' : 'var(--arc-text-dim)',
-                    width: '28px',
-                  }}
-                >
-                  #{leader.rank}
-                </span>
-
-                <img
-                  src={leader.avatar}
-                  alt={leader.name}
-                  style={{
-                    width: '44px',
-                    height: '44px',
-                    borderRadius: '50%',
-                    border: `2px solid ${leader.rank === 1 ? '#FF2A5F' : 'rgba(255,255,255,0.1)'}`,
-                    objectFit: 'cover',
-                  }}
-                />
-
-                <div>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                    <span style={{ fontSize: '15px', fontWeight: 800, color: '#FFFFFF' }}>
-                      {leader.name}
-                    </span>
-                    <a
-                      href={`https://x.com/${leader.handle}`}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      style={{ fontSize: '12px', color: '#FF7597', textDecoration: 'none', fontFamily: 'var(--font-mono)' }}
-                    >
-                      @{leader.handle}
-                    </a>
+              <div
+                style={{
+                  height: '60px',
+                  background: 'linear-gradient(135deg, #1A0710, #3B0D1E)',
+                  borderBottom: '1px solid rgba(255, 42, 95, 0.15)',
+                }}
+              />
+              <div style={{ padding: '0 20px 20px 20px', position: 'relative' }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', marginTop: '-30px' }}>
+                  <div
+                    style={{
+                      width: '60px',
+                      height: '60px',
+                      borderRadius: '50%',
+                      border: '3px solid #0C101A',
+                      overflow: 'hidden',
+                      background: '#1A0710',
+                      boxShadow: '0 4px 20px rgba(255, 42, 95, 0.4)',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                    }}
+                  >
+                    <img
+                      src={gem.avatar}
+                      alt={gem.name}
+                      style={{ width: '85%', height: '85%', objectFit: 'contain' }}
+                      onError={(e) => {
+                        (e.currentTarget as HTMLElement).style.display = 'none';
+                      }}
+                    />
                   </div>
-                  <div style={{ fontSize: '11px', color: 'var(--arc-text-muted)', marginTop: '2px' }}>
-                    {leader.role}
-                  </div>
+                  <a
+                    href={`https://x.com/${gem.handle}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    style={{
+                      background: 'linear-gradient(135deg, #FF2A5F, #8B5CF6)',
+                      color: '#ffffff',
+                      textDecoration: 'none',
+                      padding: '8px 18px',
+                      borderRadius: '9999px',
+                      fontSize: '12px',
+                      fontWeight: '700',
+                      boxShadow: '0 0 16px rgba(255, 42, 95, 0.3)',
+                    }}
+                  >
+                    Follow on X
+                  </a>
                 </div>
-              </div>
 
-              <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
-                <TierBadge impressions={leader.points} />
-                <div style={{ textAlign: 'right' }}>
-                  <div style={{ fontFamily: 'var(--font-mono)', fontSize: '15px', fontWeight: 800, color: '#00E5FF' }}>
-                    {leader.points.toLocaleString()}
+                <div style={{ marginTop: '12px' }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                    <span style={{ fontSize: '17px', fontWeight: '800', color: '#ffffff' }}>{gem.name}</span>
+                    <span style={{ color: '#FF7597', fontSize: '13px', fontFamily: 'var(--font-mono, monospace)' }}>
+                      @{gem.handle}
+                    </span>
                   </div>
-                  <div style={{ fontFamily: 'var(--font-mono)', fontSize: '10px', color: 'var(--arc-text-dim)' }}>
-                    YORAI PTS
+                  <p style={{ color: 'var(--arc-text-muted, #94A3B8)', fontSize: '13px', margin: '8px 0 14px 0', lineHeight: 1.5 }}>
+                    {gem.bio}
+                  </p>
+                  <div style={{ display: 'flex', gap: '16px', fontSize: '12px', color: 'var(--arc-text-muted, #94A3B8)', borderTop: '1px solid rgba(255,255,255,0.06)', paddingTop: '10px' }}>
+                    <span>
+                      <strong style={{ color: '#ffffff' }}>{formatStatNumber(gem.followers)}</strong> Followers
+                    </span>
+                    <span>
+                      <strong style={{ color: '#ffffff' }}>{gem.following}</strong> Following
+                    </span>
+                    <span style={{ marginLeft: 'auto', color: '#FF7597', fontWeight: 700 }}>
+                      Score: {gem.hazels_score}
+                    </span>
                   </div>
                 </div>
               </div>
             </div>
           ))}
         </div>
-      </div>
+      )}
     </div>
   );
 };

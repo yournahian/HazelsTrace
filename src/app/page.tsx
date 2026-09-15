@@ -18,20 +18,16 @@ export default function Home() {
     <div className="app-viewport">
       <FollowGate />
 
-      <header className="app-header">
+            <header className="app-header">
         <div className="brand-link">
-          <div className="brand-badge">
-            <HazelsLogo size={20} showWordmark={true} />
-            <span className="brand-name" style={{ marginLeft: '4px' }}>Trace</span>
-            <span
-              className="brand-pill"
-              style={{
-                borderColor: 'rgba(255, 42, 95, 0.4)',
-                color: '#FF7597',
-                background: 'rgba(255, 42, 95, 0.1)',
-              }}
-            >
-              studio.hazels.io
+          <div className="brand-badge" style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+            <img
+              src="/brand/mark.png"
+              alt="Hazels"
+              style={{ width: '24px', height: '24px', objectFit: 'contain' }}
+            />
+            <span className="brand-name" style={{ fontSize: '18px', fontWeight: 800, color: '#ffffff', letterSpacing: '-0.02em' }}>
+              Hazels Trace
             </span>
           </div>
         </div>
