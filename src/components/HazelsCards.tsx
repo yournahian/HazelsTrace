@@ -225,24 +225,22 @@ export const HazelsCards: React.FC = () => {
 
         // Smart assignment according to engagement metrics
         const imps = json.total_impressions || 0;
-        if (clean.toLowerCase() === 'Contender') {
-          assignedArchetype = 'pioneer';
-        } else if (imps > 100000) {
-          assignedArchetype = 'usdc_titan';
+        if (imps > 100000) {
+          assignedArchetype = 'rei';
         } else if (imps > 50000) {
-          assignedArchetype = 'sovereign';
+          assignedArchetype = 'kaede';
         } else if (imps > 25000) {
-          assignedArchetype = 'architect';
+          assignedArchetype = 'hina';
         } else if (imps > 10000) {
-          assignedArchetype = 'finalizer';
+          assignedArchetype = 'aoi';
         } else if (imps > 5000) {
-          assignedArchetype = 'vanguard';
+          assignedArchetype = 'ren';
         } else if (imps > 2000) {
-          assignedArchetype = 'arbitrageur';
+          assignedArchetype = 'rin';
         } else if (imps > 500) {
-          assignedArchetype = 'devourer';
+          assignedArchetype = 'yuki';
         } else {
-          const pool = ['navigator', 'sentinel', 'vanguard', 'pioneer'];
+          const pool = ['sora', 'mai', 'kuro', 'rei'];
           assignedArchetype = pool[Math.floor(Math.random() * pool.length)];
         }
       } else {
@@ -266,7 +264,7 @@ export const HazelsCards: React.FC = () => {
     }
   };
 
-  const archetype = HAZELS_ARCHETYPES[selectedArchetypeId] || HAZELS_ARCHETYPES.pioneer;
+  const archetype = HAZELS_ARCHETYPES[selectedArchetypeId] || HAZELS_ARCHETYPES.rei;
 
   const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
     if (openingStage === 'charging' || openingStage === 'spinning') return;
